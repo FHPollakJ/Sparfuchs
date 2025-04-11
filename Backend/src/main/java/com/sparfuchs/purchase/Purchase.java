@@ -1,15 +1,20 @@
 package com.sparfuchs.purchase;
+import com.sparfuchs.purchaseProduct.PurchaseProduct;
 import com.sparfuchs.store.Store;
 import com.sparfuchs.storeProduct.StoreProduct;
 import com.sparfuchs.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "purchases")
 public class Purchase {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -17,14 +22,91 @@ public class Purchase {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "store_id", nullable = false)
     private Store store;
-
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
-    private List<StoreProduct> products;
-
-    private Double totalPrice;
-
     private LocalDateTime createdAt;
+
+
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PurchaseProduct> products = new ArrayList<>();
+
+    private boolean completed;
+
+
+    protected Purchase() {
+    }
+
+    public Purchase(User user, Store store, LocalDateTime createdAt) {
+        this.user = user;
+        this.completed = false;
+        this.store = store;
+        this.createdAt = createdAt;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Store getStore() {
+        return store;
+    }
+
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setProducts(List<PurchaseProduct> products) {
+        this.products = products;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+
+    public void addProduct(PurchaseProduct purchaseProduct) {
+        products.add(purchaseProduct);
+        purchaseProduct.setPurchase(this);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public List<PurchaseProduct> getProducts() {
+        return products;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void complete() {
+        this.completed = true;
+    }
+
+    public double getTotalSpent() {
+        return products.stream()
+                .mapToDouble(PurchaseProduct::getTotalPrice)
+                .sum();
+    }
+
+    public double getTotalSaved() {
+        return products.stream()
+                .mapToDouble(PurchaseProduct::getTotalSavings)
+                .sum();
+    }
 }
+
 

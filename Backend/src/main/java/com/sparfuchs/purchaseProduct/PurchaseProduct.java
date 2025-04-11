@@ -4,22 +4,74 @@ import com.sparfuchs.storeProduct.StoreProduct;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "purchase_products")
 public class PurchaseProduct {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "purchase_id", nullable = false)
-    private Purchase einkauf;
+    @ManyToOne(optional = false)
+    private Purchase purchase;
+    private double price = 0;
+    private int discountPercent = 0;
+    private int quantity = 0;
+    private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "storeProduct_id", nullable = false)
-    private StoreProduct storeProdukt;
+    protected PurchaseProduct() {}
 
-    @Column(nullable = false)
-    private int quantity;
+    public PurchaseProduct(Purchase purchase, int quantity, int discountPercentage, String name, double price) {
+        this.purchase = purchase;
+        //this.storeProduct = storeProduct;
+        this.quantity = quantity;
+        this.discountPercent = discountPercentage;
+        this.name = name;
+        this.price = price;
+    }
 
-    @Column(nullable = false)
-    private double discount;
+    public void setPurchase(Purchase purchase) {
+        this.purchase = purchase;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Purchase getPurchase() {
+        return purchase;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public int getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(int discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    public double getTotalPrice() {
+        double originalPrice = this.getPrice();
+        double discountedPrice = originalPrice * (1 - (double) discountPercent / 100);
+        return discountedPrice * quantity;
+    }
+
+    public double getTotalSavings() {
+        double originalPrice = this.getPrice();
+        double savingsPerItem = originalPrice * ((double) discountPercent / 100);
+        return savingsPerItem * quantity;
+    }
 }
+
 

@@ -25,6 +25,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Purchase> purchases;
 
+    private double totalAmountSpent = 0.0;
+    private double totalAmountSaved = 0.0;
+
     public User() {
 
     }
@@ -33,6 +36,11 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public User(String email, String encode) {
+        this.email = email;
+        this.password = encode;
     }
 
     public Long getId() {
@@ -73,6 +81,15 @@ public class User {
 
     public void setPurchases(List<Purchase> purchases) {
         this.purchases = purchases;
+    }
+
+    public void updateTotals() {
+        this.totalAmountSpent = purchases.stream()
+                .mapToDouble(Purchase::getTotalSpent)
+                .sum();
+        this.totalAmountSaved = purchases.stream()
+                .mapToDouble(Purchase::getTotalSaved)
+                .sum();
     }
 }
 
