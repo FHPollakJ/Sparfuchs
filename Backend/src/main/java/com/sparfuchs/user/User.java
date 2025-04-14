@@ -38,11 +38,6 @@ public class User {
         this.password = password;
     }
 
-    public User(String email, String encode) {
-        this.email = email;
-        this.password = encode;
-    }
-
     public Long getId() {
         return id;
     }

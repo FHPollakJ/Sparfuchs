@@ -44,7 +44,7 @@ public class PurchaseService {
     }
 
     public Purchase startPurchase(StartPurchaseDTO request, long userId) {
-        Store store = storeRepository.findById(request.getStoreId())
+        Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new NotFoundException("Store not found"));
 
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
@@ -52,35 +52,36 @@ public class PurchaseService {
         return purchaseRepository.save(purchase);
     }
 
+
     public StoreProduct saveUnknownProduct(SaveUnknownProductDTO request) {
-        Store store = storeRepository.findById(request.getStoreId())
+        Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new NotFoundException("Store not found"));
 
-        Product product = new Product(request.getBarcode(),request.getProductName());
+        Product product = new Product(request.barcode(),request.productName());
         product = productRepository.save(product);
 
-        StoreProduct storeProduct = new StoreProduct(product,store,request.getPrice(),LocalDateTime.now());
+        StoreProduct storeProduct = new StoreProduct(product,store,request.price(),LocalDateTime.now());
         return storeProductRepository.save(storeProduct);
     }
 
     public Purchase addProductToPurchase(AddProductToPurchaseDTO request) {
-        Purchase purchase = purchaseRepository.findById(request.getPurchaseId())
+        Purchase purchase = purchaseRepository.findById(request.purchaseId())
                 .orElseThrow(() -> new NotFoundException("Purchase not found"));
 
-        Product prd = productRepository.findByBarcode(request.getBarcode())
+        Product prd = productRepository.findByBarcode(request.barcode())
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
         StoreProduct storeProduct = storeProductRepository.findByProductAndStoreId(prd,purchase.getStore().getId())
                 .orElseThrow(() -> new NotFoundException("StoreProduct not found"));
-        if(storeProduct.getPrice() != request.getPrice()) {
+        if(storeProduct.getPrice() != request.price()) {
             StoreProductPriceHistory priceHistory = new StoreProductPriceHistory(storeProduct, storeProduct.getPrice(),storeProduct.getLastUpdated(),LocalDateTime.now());
             storeProduct.setLastUpdated(LocalDateTime.now());
-            storeProduct.setPrice(request.getPrice());
+            storeProduct.setPrice(request.price());
             storeProductPriceHistoryRepository.save(priceHistory);
             storeProductRepository.save(storeProduct);
         }
 
-        PurchaseProduct purchaseProduct = new PurchaseProduct(purchase,request.getQuantity(),request.getDiscount(),storeProduct.getProduct().getName(),storeProduct.getPrice());
+        PurchaseProduct purchaseProduct = new PurchaseProduct(purchase,request.quantity(),request.discount(),storeProduct.getProduct().getName(),storeProduct.getPrice());
         purchaseProductRepository.save(purchaseProduct);
         purchase.getProducts().add(purchaseProduct);
         return purchaseRepository.save(purchase);
@@ -88,15 +89,15 @@ public class PurchaseService {
 
     @Transactional
     public Purchase addNoBarcodeProduct(AddNoBarcodeProductDTO request) {
-        Purchase purchase = purchaseRepository.findById(request.getPurchaseId())
+        Purchase purchase = purchaseRepository.findById(request.purchaseId())
                 .orElseThrow(() -> new NotFoundException("Purchase not found"));
 
         PurchaseProduct purchaseProduct = new PurchaseProduct(
                 purchase,
-                request.getQuantity(),
-                request.getDiscount(),
-                request.getProductName(),
-                request.getPrice()
+                request.quantity(),
+                request.discount(),
+                request.productName(),
+                request.price()
         );
         purchase.getProducts().add(purchaseProduct);
 
