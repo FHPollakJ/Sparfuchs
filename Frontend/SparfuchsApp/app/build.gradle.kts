@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
 }
 
 android {
@@ -9,16 +12,12 @@ android {
 
     defaultConfig {
         applicationId = "com.example.sparfuchsapp"
-        minSdk = 28
+        minSdk = 29
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildFeatures {
-        compose = true
     }
 
     buildTypes {
@@ -37,25 +36,74 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.kotlin.get()
+    }
 }
 
 dependencies {
 
+    // Android Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.tooling.preview)
+
+    // Navigation
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.camera.view)
+
+    // Compose
+    val composeBom = platform("androidx.compose:compose-bom:2025.04.00")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
+    implementation(libs.androidx.material3)                  // Material Design 3
+    implementation(libs.androidx.ui.tooling.preview)         // Android Studio Preview
+    debugImplementation(libs.androidx.ui.tooling)            // Tooling for Debug
+
+    // Network - Retrofit + OkHttp + Moshi
+    implementation(libs.retrofit)
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin.codegen)
+    implementation(libs.converter.moshi)
+    implementation(libs.retrofit2.converter.moshi)
+    implementation(libs.okhttp)
+    implementation(libs.squareup.moshi.kotlin)
+    implementation(libs.moshi.adapters.v1150)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Room (Local DB Caching)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)  // Room annotation processor via KSP
+
+    // Dependency Injection - Hilt
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.compiler)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    //Compose
-    val composeBom = platform("androidx.compose:compose-bom:2025.04.00")
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
-    // Material Design 3
-    implementation(libs.androidx.material3)
-    // Android Studio Preview support
-    implementation(libs.androidx.ui.tooling.preview)
-    debugImplementation(libs.androidx.ui.tooling)
+    // BarcodeScanning
+    implementation(libs.barcode.scanning)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.core)
 
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.mlkit.vision)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.guava)
 }

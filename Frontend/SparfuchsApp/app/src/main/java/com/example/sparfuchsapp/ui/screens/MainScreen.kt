@@ -1,0 +1,68 @@
+package com.example.sparfuchsapp.ui.screens
+
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import java.time.LocalTime
+
+@Composable
+fun MainScreen(padding: PaddingValues) {
+    val greeting = getGreeting()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Text(
+                text = "$greeting, UserSTRING!",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Box(
+                modifier = Modifier
+                    .background(Color.Blue)
+            ) {
+                Text(text = "Your Savings:")
+                Text(
+                    text = "€ 10000,-",
+                    style = MaterialTheme.typography.displayLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+//If we need that function more often we should move it to a "TimeFunctions.kt" file in the Utils folder
+fun getGreeting(): String {
+    val currentHour = LocalTime.now().hour
+    return when (currentHour) {
+        in 5..11 -> "Good morning"
+        in 12..17 -> "Good afternoon"
+        in 18..21 -> "Good evening"
+        else -> "Good night"
+    }
+}
+
+@Preview(showBackground = true, name = "MainMenuPreview", uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun MainMenuScreenPreview() {
+    MainScreen(padding = PaddingValues(0.dp))
+}

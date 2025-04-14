@@ -1,4 +1,12 @@
 package com.example.sparfuchsapp
 
-class SparfuchsApp {
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
+
+
+@HiltAndroidApp
+class SparfuchsApp: Application() {
+    override fun onCreate() {
+        super.onCreate()
+    }
 }
