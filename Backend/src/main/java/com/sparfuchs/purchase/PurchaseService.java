@@ -7,6 +7,7 @@ import com.sparfuchs.DTO.StartPurchaseDTO;
 import com.sparfuchs.exception.NotFoundException;
 import com.sparfuchs.product.Product;
 import com.sparfuchs.product.ProductRepository;
+import com.sparfuchs.product.ProductService;
 import com.sparfuchs.purchaseProduct.PurchaseProduct;
 import com.sparfuchs.purchaseProduct.PurchaseProductRepository;
 import com.sparfuchs.store.Store;
@@ -25,63 +26,63 @@ import java.time.LocalDateTime;
 @Service
 public class PurchaseService {
 
+    private final PurchaseRepository purchaseRepository;
+    private final ProductRepository productRepository;
+    private final StoreRepository storeRepository;
+    private final StoreProductRepository storeProductRepository;
+    private final PurchaseProductRepository purchaseProductRepository;
     private final UserRepository userRepository;
-    private PurchaseRepository purchaseRepository;
-    private ProductRepository productRepository;
-    private StoreRepository storeRepository;
-    private StoreProductRepository storeProductRepository;
-    private PurchaseProductRepository purchaseProductRepository;
-    private StoreProductPriceHistoryRepository storeProductPriceHistoryRepository;
+    private final ProductService productService;
 
-    public PurchaseService(PurchaseRepository purchaseRepository, ProductRepository productRepository, StoreRepository storeRepository, StoreProductRepository storeProductRepository, PurchaseProductRepository purchaseProductRepository, StoreProductPriceHistoryRepository storeProductPriceHistoryRepository, UserRepository userRepository) {
+    public PurchaseService(
+            PurchaseRepository purchaseRepository,
+            ProductRepository productRepository,
+            StoreRepository storeRepository,
+            StoreProductRepository storeProductRepository,
+            PurchaseProductRepository purchaseProductRepository,
+            UserRepository userRepository,
+            ProductService productService
+    ) {
         this.purchaseRepository = purchaseRepository;
         this.productRepository = productRepository;
         this.storeRepository = storeRepository;
         this.storeProductRepository = storeProductRepository;
         this.purchaseProductRepository = purchaseProductRepository;
-        this.storeProductPriceHistoryRepository = storeProductPriceHistoryRepository;
         this.userRepository = userRepository;
+        this.productService = productService;
     }
 
     public Purchase startPurchase(StartPurchaseDTO request, long userId) {
         Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new NotFoundException("Store not found"));
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        Purchase purchase = new Purchase(user,store,LocalDateTime.now());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Purchase purchase = new Purchase(user, store, LocalDateTime.now());
         return purchaseRepository.save(purchase);
-    }
-
-
-    public StoreProduct saveUnknownProduct(SaveUnknownProductDTO request) {
-        Store store = storeRepository.findById(request.storeId())
-                .orElseThrow(() -> new NotFoundException("Store not found"));
-
-        Product product = new Product(request.barcode(),request.productName());
-        product = productRepository.save(product);
-
-        StoreProduct storeProduct = new StoreProduct(product,store,request.price(),LocalDateTime.now());
-        return storeProductRepository.save(storeProduct);
     }
 
     public Purchase addProductToPurchase(AddProductToPurchaseDTO request) {
         Purchase purchase = purchaseRepository.findById(request.purchaseId())
                 .orElseThrow(() -> new NotFoundException("Purchase not found"));
 
-        Product prd = productRepository.findByBarcode(request.barcode())
+        Product product = productRepository.findByBarcode(request.barcode())
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        StoreProduct storeProduct = storeProductRepository.findByProductAndStoreId(prd,purchase.getStore().getId())
+        StoreProduct storeProduct = storeProductRepository.findByProductAndStoreId(product, purchase.getStore().getId())
                 .orElseThrow(() -> new NotFoundException("StoreProduct not found"));
-        if(storeProduct.getPrice() != request.price()) {
-            StoreProductPriceHistory priceHistory = new StoreProductPriceHistory(storeProduct, storeProduct.getPrice(),storeProduct.getLastUpdated(),LocalDateTime.now());
-            storeProduct.setLastUpdated(LocalDateTime.now());
-            storeProduct.setPrice(request.price());
-            storeProductPriceHistoryRepository.save(priceHistory);
-            storeProductRepository.save(storeProduct);
-        }
 
-        PurchaseProduct purchaseProduct = new PurchaseProduct(purchase,request.quantity(),request.discount(),storeProduct.getProduct().getName(),storeProduct.getPrice());
+        productService.updatePrice(storeProduct, request.price());
+
+        PurchaseProduct purchaseProduct = productService.createPurchaseProduct(
+                purchase,
+                request.quantity(),
+                request.discount(),
+                storeProduct.getProduct().getName(),
+                storeProduct.getPrice()
+        );
+
         purchaseProductRepository.save(purchaseProduct);
         purchase.getProducts().add(purchaseProduct);
         return purchaseRepository.save(purchase);
@@ -92,16 +93,16 @@ public class PurchaseService {
         Purchase purchase = purchaseRepository.findById(request.purchaseId())
                 .orElseThrow(() -> new NotFoundException("Purchase not found"));
 
-        PurchaseProduct purchaseProduct = new PurchaseProduct(
+        PurchaseProduct purchaseProduct = productService.createPurchaseProduct(
                 purchase,
                 request.quantity(),
                 request.discount(),
                 request.productName(),
                 request.price()
         );
-        purchase.getProducts().add(purchaseProduct);
 
+        purchaseProductRepository.save(purchaseProduct);
+        purchase.getProducts().add(purchaseProduct);
         return purchaseRepository.save(purchase);
     }
-
 }

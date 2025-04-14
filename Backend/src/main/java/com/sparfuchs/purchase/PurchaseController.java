@@ -27,13 +27,7 @@ public class PurchaseController {
         return ResponseEntity.ok(purchase);
     }
 
-    @PostMapping("/saveUnknownProduct")
-    public ResponseEntity<StoreProduct> saveUnknownProductToDatabase(@RequestBody SaveUnknownProductDTO request, HttpSession session) {
-        StoreProduct storeProduct = purchaseService.saveUnknownProduct(request);
-        return ResponseEntity.ok(storeProduct);
-    }
-
-    @PostMapping("/addProduct")
+    @PostMapping("/addProduct") //remove product und edit product und addUnknown
     public ResponseEntity<Purchase> addProductPurchase(@RequestBody AddProductToPurchaseDTO request, HttpSession session) {
         Purchase purchase = purchaseService.addProductToPurchase(request);
         return ResponseEntity.ok(purchase);
