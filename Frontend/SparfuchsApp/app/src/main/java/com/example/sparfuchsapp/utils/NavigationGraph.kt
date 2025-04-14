@@ -9,8 +9,10 @@ import com.example.sparfuchsapp.ui.components.BottomNavItem
 import com.example.sparfuchsapp.ui.components.TopNavItem
 import com.example.sparfuchsapp.ui.screens.AccountScreen
 import com.example.sparfuchsapp.ui.screens.MainScreen
+import com.example.sparfuchsapp.ui.screens.ProductSearchScreen
 import com.example.sparfuchsapp.ui.screens.ScannerScreen
 import com.example.sparfuchsapp.ui.screens.SettingsScreen
+import com.example.sparfuchsapp.ui.screens.ShoppingScreen
 
 //Navigation graph, tells what routes show what screen
 @Composable
@@ -24,11 +26,16 @@ fun NavigationGraph(
         ) }
         composable(BottomNavItem.Scanner.route) {
             ScannerScreen(
-            onBarcodeScanned = { barcode ->
-                println("Scanned: $barcode")
-            }
-        ) }
+                onBarcodeScanned = { barcode ->
+                    println("Scanned: $barcode")
+                },
+                onCancel = { false }
+            ) }
         composable(BottomNavItem.Settings.route) { SettingsScreen() }
+        composable(BottomNavItem.Shopping.route) { ShoppingScreen(
+            padding = innerPadding
+        ) }
+        composable(BottomNavItem.ProductSearch.route) { ProductSearchScreen() }
         composable(TopNavItem.Account.route) { AccountScreen() }
         composable(TopNavItem.Back.route) { navController.popBackStack() }
     }

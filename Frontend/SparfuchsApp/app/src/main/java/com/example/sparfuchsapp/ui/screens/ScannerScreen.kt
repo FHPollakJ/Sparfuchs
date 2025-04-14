@@ -18,7 +18,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 @Composable
 fun ScannerScreen(
     onBarcodeScanned: (String) -> Unit,
-    padding: PaddingValues = PaddingValues()
+    padding: PaddingValues = PaddingValues(),
+    onCancel: () -> Unit
 ) {
     val permissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
 
