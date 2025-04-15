@@ -1,15 +1,9 @@
 package com.sparfuchs.purchase;
 
-import com.sparfuchs.DTO.SaveUnknownProductDTO;
-import com.sparfuchs.DTO.AddProductToPurchaseDTO;
-import com.sparfuchs.DTO.StartPurchaseDTO;
-import com.sparfuchs.storeProduct.StoreProduct;
+import com.sparfuchs.DTO.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/purchase")
@@ -21,18 +15,32 @@ public class PurchaseController {
         this.purchaseService = purchaseService;
     }
 
-    @PostMapping("/start") //purchase dto und storeproductdto und so noch machen
-    public ResponseEntity<Purchase> startPurchase(@RequestBody StartPurchaseDTO request, HttpSession session) {
-        Purchase purchase = purchaseService.startPurchase(request, (long)session.getAttribute("userId"));
+    @PostMapping("/startPurchase")
+    public ResponseEntity<PurchaseDTO> startPurchase(@RequestBody StartPurchaseDTO request, HttpSession session) {
+        PurchaseDTO purchase = purchaseService.startPurchase(request, (long)session.getAttribute("userId"));
         return ResponseEntity.ok(purchase);
     }
 
-    @PostMapping("/addProduct") //remove product und edit product und addUnknown
-    public ResponseEntity<Purchase> addProductPurchase(@RequestBody AddProductToPurchaseDTO request, HttpSession session) {
-        Purchase purchase = purchaseService.addProductToPurchase(request);
+    @PostMapping("/addProductToPurchase")
+    public ResponseEntity<PurchaseDTO> addProductToPurchase(@RequestBody PurchaseProductDTO request, HttpSession session) {
+        PurchaseDTO purchase = purchaseService.addProductToPurchase(request, (long)session.getAttribute("userId"));
         return ResponseEntity.ok(purchase);
     }
+    @PatchMapping("/finishPurchase")
+    public ResponseEntity<Void> finishPurchase(@RequestBody PurchaseIdDTO request, HttpSession session) {
+        purchaseService.finishPurchase(request.purchaseId(), (long) session.getAttribute("userId"));
+        return ResponseEntity.ok().build();
+    }
 
-    //end purchase
-    //delete purchase ( nur incompleted )
+    @DeleteMapping("/deletePurchase")
+    public ResponseEntity<Void> deletePurchase(@RequestBody PurchaseIdDTO request, HttpSession session) {
+        purchaseService.deleteIncompletePurchase(request.purchaseId(), (long) session.getAttribute("userId"));
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/removeProductFromPurchase")
+    public ResponseEntity<PurchaseDTO> removeProductFromPurchase(@RequestBody PurchaseProductDTO request, HttpSession session) {
+        PurchaseDTO purchase = purchaseService.removeProductFromPurchase(request, (long) session.getAttribute("userId"));
+        return ResponseEntity.ok(purchase);
+    }
 }

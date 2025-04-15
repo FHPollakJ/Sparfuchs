@@ -4,6 +4,6 @@ import com.sparfuchs.purchase.Purchase;
 
 import java.util.List;
 
-public record UserResponseDTO(String username, String email, List<Purchase>purchases) {
+public record UserResponseDTO(String username, String email, List<PurchaseDTO>purchases) {
 
 }

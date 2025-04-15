@@ -41,23 +41,17 @@ public class StoreProductPriceHistory {
         return storeProduct;
     }
 
-    public void setStoreProduct(StoreProduct storeProduct) {
-        this.storeProduct = storeProduct;
-    }
 
     public double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
 
     public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime timestamp) {
-        this.startTime = timestamp;
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 }

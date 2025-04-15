@@ -24,6 +24,7 @@ public class StoreProduct {
     @Column(nullable = false)
     private double price;
 
+    @Column(nullable = false)
     private LocalDateTime lastUpdated;
 
     @OneToMany(mappedBy = "storeProduct", cascade = CascadeType.ALL, orphanRemoval = true) //oprhan removal ?? lmao
@@ -44,18 +45,6 @@ public class StoreProduct {
 
     public Product getProduct() {
         return product;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public void setStore(Store store) {
-        this.store = store;
     }
 
     public void setPrice(double price) {

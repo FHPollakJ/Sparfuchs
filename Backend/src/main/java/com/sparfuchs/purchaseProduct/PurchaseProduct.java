@@ -1,4 +1,5 @@
 package com.sparfuchs.purchaseProduct;
+import com.sparfuchs.product.Product;
 import com.sparfuchs.purchase.Purchase;
 import com.sparfuchs.storeProduct.StoreProduct;
 import jakarta.persistence.*;
@@ -10,7 +11,8 @@ public class PurchaseProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @ManyToOne(optional = true)
+    private Product product;
     @ManyToOne(optional = false)
     private Purchase purchase;
     private double price = 0;

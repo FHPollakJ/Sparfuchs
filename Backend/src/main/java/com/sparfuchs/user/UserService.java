@@ -1,22 +1,31 @@
 package com.sparfuchs.user;
 
 import com.sparfuchs.DTO.AuthRequestDTO;
+import com.sparfuchs.DTO.PurchaseDTO;
 import com.sparfuchs.DTO.UserResponseDTO;
 import com.sparfuchs.exception.BadRequestException;
 import com.sparfuchs.exception.NotFoundException;
+import com.sparfuchs.purchase.Purchase;
+import com.sparfuchs.purchase.PurchaseService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PurchaseService purchaseService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, PurchaseService purchaseService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.purchaseService = purchaseService;
     }
 
     public UserResponseDTO register(AuthRequestDTO request) {
@@ -26,7 +35,7 @@ public class UserService {
 
         User user = new User(request.username(),request.email(), passwordEncoder.encode(request.password()));
         userRepository.save(user);
-        return new UserResponseDTO(user.getUsername(),user.getEmail(),user.getPurchases());
+        return new UserResponseDTO(user.getUsername(),user.getEmail(),new ArrayList<>());
     }
 
     public UserResponseDTO login(AuthRequestDTO request, HttpSession session) {
@@ -39,7 +48,7 @@ public class UserService {
 
         session.setAttribute("userId", user.getId());
 
-        return new UserResponseDTO(user.getUsername(),user.getEmail(),user.getPurchases());
+        return new UserResponseDTO(user.getUsername(),user.getEmail(),purchaseListToPurchaseDTOList(user.getPurchases()));
     }
 
     public void logout(HttpSession session) {
@@ -71,7 +80,25 @@ public class UserService {
 
         userRepository.save(user);
 
-        return new UserResponseDTO(user.getUsername(),user.getEmail(),user.getPurchases());
+        return new UserResponseDTO(user.getUsername(),user.getEmail(),purchaseListToPurchaseDTOList(user.getPurchases()));
+    }
+
+    private List<PurchaseDTO> purchaseListToPurchaseDTOList(List<Purchase> purchases){
+        if (purchases.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<PurchaseDTO> purchaseDTOS = new ArrayList<>();
+        for(Purchase purchase : purchases){
+            PurchaseDTO dto = new PurchaseDTO(purchase.getId(),
+                    purchase.getStore().getId(),
+                    purchase.getCreatedAt(),
+                    purchaseService.purchaseProductsToDTO(purchase.getProducts()),
+                    false,
+                    purchase.getTotalSpent(),
+                    purchase.getTotalSaved());
+            purchaseDTOS.add(dto);
+        }
+        return purchaseDTOS;
     }
 
 }

@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException ex, WebRequest request) {
         logger.warn("NotFoundException: {} - Request: {}", ex.getMessage(), request.getDescription(false));
-        return buildResponseEntity("File not found. ", HttpStatus.NOT_FOUND);
+        return buildResponseEntity("File not found. " + ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     // 400 - Bad Request

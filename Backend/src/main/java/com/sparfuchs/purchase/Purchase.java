@@ -21,16 +21,21 @@ public class Purchase {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
     @ManyToOne
     private Store store;
+
     private LocalDateTime createdAt;
 
 
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PurchaseProduct> products = new ArrayList<>();
 
-    private boolean completed;
+    private boolean completed = false;
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
     protected Purchase() {
     }
@@ -42,50 +47,16 @@ public class Purchase {
         this.createdAt = createdAt;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public Store getStore() {
         return store;
     }
 
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setProducts(List<PurchaseProduct> products) {
-        this.products = products;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
-
-    public void addProduct(PurchaseProduct purchaseProduct) {
-        products.add(purchaseProduct);
-        purchaseProduct.setPurchase(this);
+    public List<PurchaseProduct> getProducts() {
+        return products;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public List<PurchaseProduct> getProducts() {
-        return products;
     }
 
     public boolean isCompleted() {
@@ -94,6 +65,10 @@ public class Purchase {
 
     public void complete() {
         this.completed = true;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public double getTotalSpent() {
@@ -107,6 +82,7 @@ public class Purchase {
                 .mapToDouble(PurchaseProduct::getTotalSavings)
                 .sum();
     }
+
 }
 
 
