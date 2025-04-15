@@ -22,7 +22,6 @@ public class PurchaseProduct {
 
     public PurchaseProduct(Purchase purchase, int quantity, int discountPercentage, String name, double price) {
         this.purchase = purchase;
-        //this.storeProduct = storeProduct;
         this.quantity = quantity;
         this.discountPercent = discountPercentage;
         this.name = name;

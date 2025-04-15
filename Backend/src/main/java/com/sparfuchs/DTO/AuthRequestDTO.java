@@ -1,10 +1,8 @@
 package com.sparfuchs.DTO;
 
-public record AuthRequestDTO(     String email,
-        String password,
-        String username) {
-
-
-
+public record AuthRequestDTO(
+        String username,
+        String email,
+        String password) {
 }
 

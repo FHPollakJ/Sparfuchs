@@ -32,4 +32,7 @@ public class PurchaseController {
         Purchase purchase = purchaseService.addProductToPurchase(request);
         return ResponseEntity.ok(purchase);
     }
+
+    //end purchase
+    //delete purchase ( nur incompleted )
 }

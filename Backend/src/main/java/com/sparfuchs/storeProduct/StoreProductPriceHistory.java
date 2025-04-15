@@ -37,10 +37,6 @@ public class StoreProductPriceHistory {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public StoreProduct getStoreProduct() {
         return storeProduct;
     }

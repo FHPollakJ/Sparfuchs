@@ -1,4 +1,6 @@
 package com.sparfuchs.DTO;
 
-public record StartPurchaseDTO(Long storeId){
+import java.time.LocalDate;
+
+public record StartPurchaseDTO(Long storeId, LocalDate createdAt){
 }

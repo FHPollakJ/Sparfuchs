@@ -1,7 +1,6 @@
 package com.sparfuchs.user;
 
 import com.sparfuchs.DTO.AuthRequestDTO;
-import com.sparfuchs.DTO.EditUserRequestDTO;
 import com.sparfuchs.DTO.UserResponseDTO;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
@@ -56,7 +55,7 @@ public class UserController {
     }
 
     @PatchMapping("/edit")
-    public ResponseEntity<UserResponseDTO> editUser(@RequestBody EditUserRequestDTO request, HttpSession session) {
+    public ResponseEntity<UserResponseDTO> editUser(@RequestBody AuthRequestDTO request, HttpSession session) {
         UserResponseDTO updatedUser = userService.editUser(request,session);
         return ResponseEntity.ok(updatedUser);
     }

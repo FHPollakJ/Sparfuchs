@@ -64,6 +64,7 @@ public class PurchaseService {
     }
 
     public Purchase addProductToPurchase(AddProductToPurchaseDTO request) {
+        //check if completed
         Purchase purchase = purchaseRepository.findById(request.purchaseId())
                 .orElseThrow(() -> new NotFoundException("Purchase not found"));
 

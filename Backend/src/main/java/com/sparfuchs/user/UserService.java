@@ -1,7 +1,6 @@
 package com.sparfuchs.user;
 
 import com.sparfuchs.DTO.AuthRequestDTO;
-import com.sparfuchs.DTO.EditUserRequestDTO;
 import com.sparfuchs.DTO.UserResponseDTO;
 import com.sparfuchs.exception.BadRequestException;
 import com.sparfuchs.exception.NotFoundException;
@@ -31,7 +30,7 @@ public class UserService {
     }
 
     public UserResponseDTO login(AuthRequestDTO request, HttpSession session) {
-        User user = userRepository.findByEmail(request.password())
+        User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials."));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
@@ -53,7 +52,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public UserResponseDTO editUser(EditUserRequestDTO request, HttpSession session) {
+    public UserResponseDTO editUser(AuthRequestDTO request, HttpSession session) {
         User user = userRepository.findById((long)session.getAttribute("userId"))
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
