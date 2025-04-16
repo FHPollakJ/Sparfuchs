@@ -61,7 +61,7 @@ sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: 
     object Home : BottomNavItem("main", Icons.Default.Home, "Home")
     object ProductSearch : BottomNavItem("search", Icons.Default.Search, "Search")
     object Shopping : BottomNavItem("shopping", Icons.Default.ShoppingCart, "Grocery\nShopping")
-    object Scanner : BottomNavItem("scanner", Icons.Default.Build, "Scanner")
+    object Scanner : BottomNavItem("scanner", Icons.Default.Build, "Scanner\n(DEBUG)")
     object Settings : BottomNavItem("settings", Icons.Default.Settings, "Settings")
 }
 

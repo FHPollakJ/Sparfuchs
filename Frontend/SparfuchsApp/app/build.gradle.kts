@@ -73,10 +73,10 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin.codegen)
     implementation(libs.converter.moshi)
+    implementation(libs.squareup.moshi.adapters)
     implementation(libs.retrofit2.converter.moshi)
     implementation(libs.okhttp)
     implementation(libs.squareup.moshi.kotlin)
-    implementation(libs.moshi.adapters.v1150)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)

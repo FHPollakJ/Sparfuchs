@@ -61,5 +61,4 @@ fun TopNavBar(navController: NavController) {
 sealed class TopNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Account : BottomNavItem("account", Icons.Default.AccountCircle, "Account")
     object Back : BottomNavItem("back", Icons.AutoMirrored.Filled.ArrowBack, "Back")
-
 }

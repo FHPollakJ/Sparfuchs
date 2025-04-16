@@ -10,8 +10,12 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+        val isLoggedIn = prefs.getBoolean("logged_in", false)
+
         setContent {
-            SparfuchsAppUI()
+            SparfuchsAppUI(startDestination = if (isLoggedIn) "home" else "auth")
         }
     }
 }

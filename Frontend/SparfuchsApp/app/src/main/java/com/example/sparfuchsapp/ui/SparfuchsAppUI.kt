@@ -12,7 +12,7 @@ import com.example.sparfuchsapp.ui.components.TopNavBar
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SparfuchsAppUI() {
+fun SparfuchsAppUI(startDestination: String) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -21,7 +21,8 @@ fun SparfuchsAppUI() {
     ) { innerPadding ->
         NavigationGraph(
             navController = navController,
-            innerPadding = innerPadding
-    )
-}
+            innerPadding = innerPadding,
+            startDestination = startDestination
+        )
+    }
 }

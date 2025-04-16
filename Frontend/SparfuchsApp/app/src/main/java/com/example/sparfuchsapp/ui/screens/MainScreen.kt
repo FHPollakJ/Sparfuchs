@@ -6,20 +6,39 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.sparfuchsapp.ui.screens.viewModels.AuthViewModel
 import java.time.LocalTime
+import androidx.compose.runtime.getValue
+import com.example.sparfuchsapp.ui.theme.SavingsGreen
 
 @Composable
-fun MainScreen(padding: PaddingValues) {
+fun MainScreen(
+    viewModel: AuthViewModel,
+    padding: PaddingValues
+) {
+    val user by viewModel.user.collectAsState()
     val greeting = getGreeting()
+
+    val savingsText = if(user?.purchases?.sumOf { it.totalSaved } != 0.0) {
+        "€ %.2f".format(user!!.purchases.sumOf { it.totalSaved }).replace('.',',')
+    } else {
+        "Start saving :D"
+    }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -31,21 +50,38 @@ fun MainScreen(padding: PaddingValues) {
                 .padding(padding)
         ) {
             Text(
-                text = "$greeting, UserSTRING!",
+                text = "$greeting, ${user?.username}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Box(
+            Card(
                 modifier = Modifier
-                    .background(Color.Blue)
+                    .fillMaxWidth()
             ) {
-                Text(text = "Your Savings:")
-                Text(
-                    text = "€ 10000,-",
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(10.dp)
+                ){
+                    Text(text = "Overall Spending")
+                    Text(
+                        text = "€ %.2f".format(user!!.purchases.sumOf { it.totalSpent }).replace('.',','),
+                        style = MaterialTheme.typography.displayLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "Your Savings"
+                    )
+
+                    Text(
+                        text = savingsText,
+                        style = MaterialTheme.typography.displayLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = SavingsGreen
+                    )
+                }
             }
+            Text("History")
+
         }
     }
 }
@@ -64,5 +100,5 @@ fun getGreeting(): String {
 @Preview(showBackground = true, name = "MainMenuPreview", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun MainMenuScreenPreview() {
-    MainScreen(padding = PaddingValues(0.dp))
+    MainScreen(viewModel = AuthViewModel(), padding = PaddingValues(0.dp))
 }
