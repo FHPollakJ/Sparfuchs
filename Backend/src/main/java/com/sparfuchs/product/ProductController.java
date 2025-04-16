@@ -5,7 +5,6 @@ import com.sparfuchs.DTO.ProductPriceHistoryDTO;
 import com.sparfuchs.DTO.ProductWithPriceDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -41,6 +40,5 @@ public class ProductController {
         List<ProductPriceHistoryDTO> history = productService.getPriceHistoryForProduct(request);
         return ResponseEntity.ok(history);
     }
-    //compare price history stores
 
 }

@@ -15,10 +15,8 @@ import com.sparfuchs.storeProduct.StoreProduct;
 import com.sparfuchs.storeProduct.StoreProductRepository;
 import com.sparfuchs.user.User;
 import com.sparfuchs.user.UserRepository;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +51,7 @@ public class PurchaseService {
         this.productService = productService;
     }
 
+    @Transactional
     public PurchaseDTO startPurchase(StartPurchaseDTO request, long userId) {
         Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new NotFoundException("Store not found"));
@@ -98,18 +97,20 @@ public class PurchaseService {
                 purchase.getTotalSaved());
     }
 
-
+    @Transactional
     public void finishPurchase(long purchaseId, long userId) {
         Purchase purchase = getValidatedEditablePurchase(purchaseId, userId);
         purchase.complete();
         purchaseRepository.save(purchase);
     }
 
+    @Transactional
     public void deleteIncompletePurchase(long purchaseId, long userId) {
         Purchase purchase = getValidatedEditablePurchase(purchaseId, userId);
         purchaseRepository.delete(purchase);
     }
 
+    @Transactional
     public PurchaseDTO removeProductFromPurchase(PurchaseProductDTO request, long userId) {
         Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
 
@@ -137,7 +138,7 @@ public class PurchaseService {
     }
 
 
-
+    @Transactional
     public PurchaseDTO addNoBarcodeProductToPurchase(PurchaseProductDTO request, long userId) {
         Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
 
@@ -196,5 +197,26 @@ public class PurchaseService {
         }
 
         return purchase;
+    }
+
+    public List<PurchaseDTO> getPurchasesForUser(long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        List<Purchase> purchases = user.getPurchases();
+        if (purchases.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<PurchaseDTO> purchaseDTOS = new ArrayList<>();
+        for(Purchase purchase : purchases){
+            PurchaseDTO dto = new PurchaseDTO(purchase.getId(),
+                    purchase.getStore().getId(),
+                    purchase.getCreatedAt(),
+                    purchaseProductsToDTO(purchase.getProducts()),
+                    false,
+                    purchase.getTotalSpent(),
+                    purchase.getTotalSaved());
+            purchaseDTOS.add(dto);
+        }
+        return purchaseDTOS;
     }
 }

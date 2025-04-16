@@ -1,7 +1,6 @@
 package com.sparfuchs.storeProduct;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,19 +32,9 @@ public class StoreProductPriceHistory {
         this.endTime = endTime;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public StoreProduct getStoreProduct() {
-        return storeProduct;
-    }
-
-
     public double getPrice() {
         return price;
     }
-
 
     public LocalDateTime getStartTime() {
         return startTime;

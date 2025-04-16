@@ -1,9 +1,7 @@
 package com.sparfuchs.user;
 
 import com.sparfuchs.purchase.Purchase;
-import com.sparfuchs.purchaseProduct.PurchaseProduct;
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
@@ -42,8 +40,12 @@ public class User {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public double getTotalAmountSpent() {
+        return totalAmountSpent;
+    }
+
+    public double getTotalAmountSaved() {
+        return totalAmountSaved;
     }
 
     public String getEmail() {
@@ -72,10 +74,6 @@ public class User {
 
     public List<Purchase> getPurchases() {
         return purchases;
-    }
-
-    public void setPurchases(List<Purchase> purchases) {
-        this.purchases = purchases;
     }
 
     public void updateTotals() {

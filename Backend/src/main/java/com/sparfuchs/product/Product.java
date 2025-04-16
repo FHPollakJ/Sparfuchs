@@ -1,4 +1,5 @@
 package com.sparfuchs.product;
+
 import jakarta.persistence.*;
 
 @Entity
