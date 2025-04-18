@@ -14,7 +14,6 @@ import com.sparfuchs.storeProduct.StoreProductPriceHistoryRepository;
 import com.sparfuchs.storeProduct.StoreProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -101,7 +100,8 @@ public class ProductService {
         StoreProduct storeProduct = storeProductRepository.findByProductAndStoreId(product, request.storeId())
                 .orElseThrow(() -> new NotFoundException("StoreProduct not found"));
 
-        List<StoreProductPriceHistory> historyList = storeProductPriceHistoryRepository.findByStoreProduct(storeProduct);
+        List<StoreProductPriceHistory> historyList = storeProductPriceHistoryRepository.findByStoreProduct(storeProduct)
+                .orElseThrow(() -> new NotFoundException("Product has no different prices"));
 
         return historyList.stream()
                 .map(h -> new ProductPriceHistoryDTO(h.getPrice(), h.getStartTime(), h.getEndTime()))

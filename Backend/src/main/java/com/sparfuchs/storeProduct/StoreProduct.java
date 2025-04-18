@@ -1,6 +1,6 @@
 package com.sparfuchs.storeProduct;
+
 import com.sparfuchs.product.Product;
-import com.sparfuchs.purchase.Purchase;
 import com.sparfuchs.store.Store;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -27,7 +27,7 @@ public class StoreProduct {
     @Column(nullable = false)
     private LocalDateTime lastUpdated;
 
-    @OneToMany(mappedBy = "storeProduct", cascade = CascadeType.ALL, orphanRemoval = true) //oprhan removal ?? lmao
+    @OneToMany(mappedBy = "storeProduct", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreProductPriceHistory> priceHistories = new ArrayList<>();
 
     public StoreProduct() {}

@@ -1,7 +1,9 @@
 package com.sparfuchs.user;
 
 import com.sparfuchs.DTO.AuthRequestDTO;
+import com.sparfuchs.DTO.PurchaseDTO;
 import com.sparfuchs.DTO.UserResponseDTO;
+import com.sparfuchs.DTO.UserStatsDTO;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +13,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -41,23 +43,36 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpSession session) {
-        userService.logout(session);
+        session.invalidate();
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<UserResponseDTO> deleteUser(HttpSession session) {
-        userService.deleteUser(session);
+    public ResponseEntity<?> deleteUser(HttpSession session) {
+        userService.deleteUser((long) session.getAttribute("userId"));
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/edit")
     public ResponseEntity<UserResponseDTO> editUser(@RequestBody AuthRequestDTO request, HttpSession session) {
-        UserResponseDTO updatedUser = userService.editUser(request,session);
+        UserResponseDTO updatedUser = userService.editUser(request,(long) session.getAttribute("userId"));
         return ResponseEntity.ok(updatedUser);
     }
+
+    @GetMapping("/getPurchases")
+    public ResponseEntity<List<PurchaseDTO>> getUserPurchases(HttpSession session) {
+        List<PurchaseDTO> purchases = userService.getPurchasesForUser((long) session.getAttribute("userId"));
+        return ResponseEntity.ok(purchases);
+    }
+
+    @GetMapping("/getStats")
+    public ResponseEntity<UserStatsDTO> getUserStats(HttpSession session) {
+        UserStatsDTO purchases = userService.getUserStats((long) session.getAttribute("userId"));
+        return ResponseEntity.ok(purchases);
+    }
+
+
 
 }

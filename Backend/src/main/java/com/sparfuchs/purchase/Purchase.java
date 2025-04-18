@@ -1,10 +1,8 @@
 package com.sparfuchs.purchase;
 import com.sparfuchs.purchaseProduct.PurchaseProduct;
 import com.sparfuchs.store.Store;
-import com.sparfuchs.storeProduct.StoreProduct;
 import com.sparfuchs.user.User;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +63,7 @@ public class Purchase {
 
     public void complete() {
         this.completed = true;
+        this.user.updateTotals();
     }
 
     public User getUser() {

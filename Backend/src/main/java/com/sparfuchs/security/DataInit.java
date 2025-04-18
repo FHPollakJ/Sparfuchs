@@ -15,7 +15,7 @@ public class DataInit implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         storeRepository.save(new Store("Spar"));
         storeRepository.save(new Store("Billa"));
     }

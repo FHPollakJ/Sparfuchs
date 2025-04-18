@@ -1,7 +1,7 @@
 package com.sparfuchs.purchaseProduct;
+
 import com.sparfuchs.product.Product;
 import com.sparfuchs.purchase.Purchase;
-import com.sparfuchs.storeProduct.StoreProduct;
 import jakarta.persistence.*;
 
 @Entity
@@ -30,16 +30,8 @@ public class PurchaseProduct {
         this.price = price;
     }
 
-    public void setPurchase(Purchase purchase) {
-        this.purchase = purchase;
-    }
-
     public Long getId() {
         return id;
-    }
-
-    public Purchase getPurchase() {
-        return purchase;
     }
 
     public double getPrice() {
@@ -56,10 +48,6 @@ public class PurchaseProduct {
 
     public int getDiscountPercent() {
         return discountPercent;
-    }
-
-    public void setDiscountPercent(int discountPercent) {
-        this.discountPercent = discountPercent;
     }
 
     public double getTotalPrice() {

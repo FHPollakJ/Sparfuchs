@@ -3,16 +3,14 @@ package com.sparfuchs.user;
 import com.sparfuchs.DTO.AuthRequestDTO;
 import com.sparfuchs.DTO.PurchaseDTO;
 import com.sparfuchs.DTO.UserResponseDTO;
+import com.sparfuchs.DTO.UserStatsDTO;
 import com.sparfuchs.exception.BadRequestException;
 import com.sparfuchs.exception.NotFoundException;
-import com.sparfuchs.purchase.Purchase;
 import com.sparfuchs.purchase.PurchaseService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,7 +33,7 @@ public class UserService {
 
         User user = new User(request.username(),request.email(), passwordEncoder.encode(request.password()));
         userRepository.save(user);
-        return new UserResponseDTO(user.getUsername(),user.getEmail(),new ArrayList<>());
+        return new UserResponseDTO(user.getUsername(),user.getEmail());
     }
 
     public UserResponseDTO login(AuthRequestDTO request, HttpSession session) {
@@ -48,21 +46,18 @@ public class UserService {
 
         session.setAttribute("userId", user.getId());
 
-        return new UserResponseDTO(user.getUsername(),user.getEmail(),purchaseListToPurchaseDTOList(user.getPurchases()));
+        return new UserResponseDTO(user.getUsername(),user.getEmail());
     }
 
-    public void logout(HttpSession session) {
-        session.invalidate();
-    }
-
-    public void deleteUser(HttpSession session) {
-        User user = userRepository.findById((long)session.getAttribute("userId"))
+    public void deleteUser(long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
         userRepository.delete(user);
     }
 
-    public UserResponseDTO editUser(AuthRequestDTO request, HttpSession session) {
-        User user = userRepository.findById((long)session.getAttribute("userId"))
+    @Transactional
+    public UserResponseDTO editUser(AuthRequestDTO request, long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (request.username() != null) {
@@ -80,26 +75,17 @@ public class UserService {
 
         userRepository.save(user);
 
-        return new UserResponseDTO(user.getUsername(),user.getEmail(),purchaseListToPurchaseDTOList(user.getPurchases()));
+        return new UserResponseDTO(user.getUsername(),user.getEmail());
     }
 
-    private List<PurchaseDTO> purchaseListToPurchaseDTOList(List<Purchase> purchases){
-        if (purchases.isEmpty()) {
-            return new ArrayList<>();
-        }
-        List<PurchaseDTO> purchaseDTOS = new ArrayList<>();
-        for(Purchase purchase : purchases){
-            PurchaseDTO dto = new PurchaseDTO(purchase.getId(),
-                    purchase.getStore().getId(),
-                    purchase.getCreatedAt(),
-                    purchaseService.purchaseProductsToDTO(purchase.getProducts()),
-                    false,
-                    purchase.getTotalSpent(),
-                    purchase.getTotalSaved());
-            purchaseDTOS.add(dto);
-        }
-        return purchaseDTOS;
+    public UserStatsDTO getUserStats(long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        return new UserStatsDTO(user.getTotalAmountSpent(),user.getTotalAmountSaved());
     }
 
+    public List<PurchaseDTO> getPurchasesForUser(long userId) {
+        return purchaseService.getPurchasesForUser(userId);
+    }
 }
 
