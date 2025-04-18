@@ -1,4 +1,4 @@
-package com.example.sparfuchsapp.ui.screens
+package com.example.sparfuchsapp.ui.screens.shopping
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Box
@@ -14,18 +14,19 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.sparfuchsapp.data.dataClasses.Product
 import com.example.sparfuchsapp.ui.components.ProductCard
-import com.example.sparfuchsapp.ui.screens.viewModels.ShoppingViewModel
+import androidx.compose.runtime.getValue
+import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
 
 @Composable
 fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
-    // A list to hold the products in the cart
-    val productList = viewModel.productList
+    val purchaseState by viewModel.purchase.collectAsState()
+    val productList = purchaseState?.products ?: emptyList()
 
     Box(
         modifier = Modifier
@@ -37,6 +38,7 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            Text("Have fun shopping at ${purchaseState?.storeId ?: "Unknown Store"}")
             if(productList.isEmpty())
                 Text("Your shopping list is empty")
             else {
@@ -45,14 +47,24 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    items(productList) { product ->
+                    items(
+                        items = productList
+                    ) { productResponse ->
+                        val product = PurchaseProductDTO(
+                            purchaseId = purchaseState?.purchaseId ?: return@items,
+                            productName = productResponse.productName,
+                            quantity = productResponse.quantity,
+                            discount = productResponse.discount,
+                            price = productResponse.price,
+                            barcode = ""
+                        )
                         ProductCard(
                             product = product,
-                            onAmountChange = { newAmount ->
-                                viewModel.updateProduct(product, newAmount)
+                            onAmountChange = { newQty ->
+                                viewModel.addProductToPurchase(product.copy(quantity = newQty))
                             },
                             onRemove = {
-                            viewModel.removeProduct(product)
+                                viewModel.removeProductFromPurchase(product)
                             }
                         )
                     }
@@ -64,7 +76,8 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
                 .align(Alignment.BottomEnd)
                 .padding(padding)
         ) {
-            viewModel.addProduct(Product(name = "Coke", price = 20.0, barcode = "1234567890")) }
+            //TODO: showProductSelector = true;
+        }
     }
 }
 
@@ -72,13 +85,11 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
 @Composable
 fun AddProductButton(
     modifier: Modifier = Modifier,
-    onAddProduct: (Product) -> Unit
+    onclick: () -> Unit
 ) {
     // Show a button that adds a new product
-    FloatingActionButton(onClick = {
-        // Trigger the action to add a product
-        onAddProduct(Product(name = "Coke", price = 20.0, barcode = "1234567890"))
-        },
+    FloatingActionButton(
+        onClick = onclick,
         modifier = modifier
     ) {
         Icon(Icons.Default.Add, contentDescription = "Add Product")

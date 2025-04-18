@@ -29,16 +29,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.sparfuchsapp.data.dataClasses.Product
+import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
 
 
 @Composable
 fun ProductCard(
-    product: Product,
+    product: PurchaseProductDTO,
     onAmountChange: (Int) -> Unit,
     onRemove: (Any?) -> Unit
 ) {
-    var amountText by remember { mutableStateOf(product.amount.toString()) }
+    var amountText by remember { mutableStateOf(product.quantity.toString()) }
 
     Card(
         modifier = Modifier
@@ -52,7 +52,7 @@ fun ProductCard(
                 modifier = Modifier.fillMaxWidth()
                     .height(46.dp)
             ){
-                Text(text = product.name, style = MaterialTheme.typography.titleLarge)
+                Text(text = product.productName, style = MaterialTheme.typography.titleLarge)
                 Text(text = "€ %.2f".format(product.price), style = MaterialTheme.typography.titleMedium)
             }
             Row (
@@ -61,10 +61,16 @@ fun ProductCard(
                 modifier = Modifier.fillMaxWidth()
             ){
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = {
-                        if (product.amount > 1) onAmountChange(product.amount - 1)
-                    }) {
-                        if (product.amount > 1){
+                    IconButton(
+                        onClick = {
+                            if (product.quantity > 1) {
+                                onAmountChange(product.quantity - 1)
+                            } else {
+                                onRemove(product)
+                            }
+                        }
+                    ) {
+                        if (product.quantity > 1){
                             Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Decrease")
                         } else {
                             Icon(Icons.Default.Delete, contentDescription = "Remove")
@@ -87,7 +93,7 @@ fun ProductCard(
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     )
 
-                    IconButton(onClick = { onAmountChange(product.amount + 1) }) {
+                    IconButton(onClick = { onAmountChange(product.quantity + 1) }) {
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Increase")
                     }
                 }
@@ -100,11 +106,13 @@ fun ProductCard(
 @Preview(showBackground = true)
 @Composable
 fun ProductCardPreview() {
-    val exampleProduct = Product(
-        name = "Coca Cola",
+    val exampleProduct = PurchaseProductDTO(
+        productName = "Coca Cola",
         price = 1.29,
         barcode = "0",
-        amount = 2
+        quantity = 2,
+        purchaseId = 1,
+        discount = 25
     )
 
     ProductCard(

@@ -4,6 +4,6 @@ data class PurchaseProduct(
     val id: Long,
     val product: Product,
     val purchase: Purchase,
-    val amount: Int,
+    val quantity: Int,
     val total: Double
 )

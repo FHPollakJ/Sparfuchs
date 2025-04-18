@@ -1,6 +1,7 @@
 package com.example.sparfuchsapp.ui.screens.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sparfuchsapp.data.remote.RetrofitClient
@@ -42,9 +43,12 @@ class AuthViewModel : ViewModel() {
                 val response = RetrofitClient.userApi.login(
                     AuthRequestDTO(email = email, password = password)
                 )
+                val headers = response.headers().toMultimap()
+                Log.d("LoginHeaders", headers.toString())
                 if (response.isSuccessful) {
                     _user.value = response.body()
                     _error.value = null
+                    Log.d("LoginCookies", RetrofitClient.CookieManager.cookieStore.toString())
                 } else {
                     _error.value = "Login failed: ${response.code()}"
                 }

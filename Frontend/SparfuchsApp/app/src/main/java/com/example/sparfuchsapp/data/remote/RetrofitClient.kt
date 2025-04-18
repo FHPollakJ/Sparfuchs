@@ -1,8 +1,13 @@
 package com.example.sparfuchsapp.data.remote
 
+import com.example.sparfuchsapp.data.remote.api.ProductApiService
+import com.example.sparfuchsapp.data.remote.api.PurchaseApiService
 import com.example.sparfuchsapp.data.remote.api.UserApiService
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -20,15 +25,40 @@ object RetrofitClient {
 
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
+            .cookieJar(CookieManager)
             .build()
     }
 
-    val userApi: UserApiService by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(UserApiService::class.java)
     }
+
+    object CookieManager : CookieJar {
+        internal val cookieStore = mutableMapOf<String, List<Cookie>>()
+
+        override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+            cookieStore[url.host] = cookies
+        }
+
+        override fun loadForRequest(url: HttpUrl): List<Cookie> {
+            return cookieStore[url.host] ?: emptyList()
+        }
+    }
+
+    val userApi: UserApiService by lazy {
+        retrofit.create(UserApiService::class.java)
+    }
+
+    val purchaseApi: PurchaseApiService by lazy {
+        retrofit.create(PurchaseApiService::class.java)
+    }
+
+    val productApi: ProductApiService by lazy {
+        retrofit.create(ProductApiService::class.java)
+    }
+
 }

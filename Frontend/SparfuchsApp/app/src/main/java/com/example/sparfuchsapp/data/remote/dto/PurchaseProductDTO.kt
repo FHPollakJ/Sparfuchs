@@ -10,4 +10,7 @@ data class PurchaseProductDTO(
     val quantity: Int,
     val discount: Int,
     val price: Double
-)
+){
+    val total: Double
+        get() = price * quantity
+}

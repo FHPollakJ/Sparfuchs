@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
+import com.example.sparfuchsapp.utils.Routes
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +60,6 @@ fun TopNavBar(navController: NavController) {
 }
 
 sealed class TopNavItem(val route: String, val icon: ImageVector, val label: String) {
-    object Account : BottomNavItem("account", Icons.Default.AccountCircle, "Account")
-    object Back : BottomNavItem("back", Icons.AutoMirrored.Filled.ArrowBack, "Back")
+    object Account : BottomNavItem(Routes.ACCOUNT, Icons.Default.AccountCircle, "Account")
+    object Back : BottomNavItem(Routes.BACK, Icons.AutoMirrored.Filled.ArrowBack, "Back")
 }

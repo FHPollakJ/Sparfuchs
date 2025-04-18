@@ -21,6 +21,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.sparfuchsapp.ui.screens.MainScreen
+import com.example.sparfuchsapp.utils.Routes
+import okhttp3.Route
 
 @Composable
 fun BottomNavBar(navController: NavController) {
@@ -58,11 +60,11 @@ fun BottomNavBar(navController: NavController) {
 
 //Sets the items, routes and labels for the bottom bar
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
-    object Home : BottomNavItem("main", Icons.Default.Home, "Home")
-    object ProductSearch : BottomNavItem("search", Icons.Default.Search, "Search")
-    object Shopping : BottomNavItem("shopping", Icons.Default.ShoppingCart, "Grocery\nShopping")
-    object Scanner : BottomNavItem("scanner", Icons.Default.Build, "Scanner\n(DEBUG)")
-    object Settings : BottomNavItem("settings", Icons.Default.Settings, "Settings")
+    object Home : BottomNavItem(Routes.HOME, Icons.Default.Home, "Home")
+    object ProductSearch : BottomNavItem(Routes.PRODUCT_SEARCH, Icons.Default.Search, "Search")
+    object Shopping : BottomNavItem(Routes.SHOPPING, Icons.Default.ShoppingCart, "Start\nShopping")
+    object Scanner : BottomNavItem(Routes.SCANNER, Icons.Default.Build, "Scanner\n(DEBUG)")
+    object Settings : BottomNavItem(Routes.SETTINGS, Icons.Default.Settings, "Settings")
 }
 
 @Preview(showBackground = true, name = "BottomNavBarPreview", uiMode = UI_MODE_NIGHT_YES)

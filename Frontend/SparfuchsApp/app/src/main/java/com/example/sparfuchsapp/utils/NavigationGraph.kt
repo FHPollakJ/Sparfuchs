@@ -2,6 +2,7 @@ package com.example.sparfuchsapp.utils
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -11,12 +12,13 @@ import com.example.sparfuchsapp.ui.components.TopNavItem
 import com.example.sparfuchsapp.ui.screens.AccountScreen
 import com.example.sparfuchsapp.ui.screens.AuthScreen
 import com.example.sparfuchsapp.ui.screens.MainScreen
+import com.example.sparfuchsapp.ui.screens.shopping.PreShoppingScreen
 import com.example.sparfuchsapp.ui.screens.ProductSearchScreen
 import com.example.sparfuchsapp.ui.screens.ScannerScreen
 import com.example.sparfuchsapp.ui.screens.SettingsScreen
-import com.example.sparfuchsapp.ui.screens.ShoppingScreen
+import com.example.sparfuchsapp.ui.screens.shopping.ShoppingScreen
 import com.example.sparfuchsapp.ui.screens.viewModels.AuthViewModel
-import com.example.sparfuchsapp.ui.screens.viewModels.ShoppingViewModel
+import com.example.sparfuchsapp.ui.screens.shopping.ShoppingViewModel
 
 //Navigation graph, tells what routes show what screen
 @Composable
@@ -29,29 +31,53 @@ fun NavigationGraph(
     val shoppingViewModel: ShoppingViewModel = viewModel()
 
     NavHost(navController, startDestination = startDestination) {
-        composable(BottomNavItem.Home.route) { MainScreen(
+        composable(Routes.HOME) { MainScreen(
             viewModel = authViewModel,
             padding = innerPadding
         ) }
-        composable(BottomNavItem.Scanner.route) {
+        composable(Routes.SCANNER) {
             ScannerScreen(
                 onBarcodeScanned = { barcode ->
                     println("Scanned: $barcode")
                 },
                 onCancel = { false }
             ) }
-        composable(BottomNavItem.Settings.route) { SettingsScreen() }
-        composable(BottomNavItem.Shopping.route) { ShoppingScreen(
-            padding = innerPadding,
-            viewModel = shoppingViewModel
+        composable(Routes.SETTINGS) { SettingsScreen(
+            padding = innerPadding
         ) }
-        composable(BottomNavItem.ProductSearch.route) { ProductSearchScreen() }
-        composable(TopNavItem.Account.route) { AccountScreen() }
-        composable(TopNavItem.Back.route) { navController.popBackStack() }
-        composable("auth"){AuthScreen(
-            viewModel = authViewModel,
+        composable(Routes.SHOPPING) {
+            val purchase = shoppingViewModel.purchase.collectAsState()
+
+            if (purchase.value != null){
+                ShoppingScreen(
+                    padding = innerPadding,
+                    viewModel = shoppingViewModel
+                )
+            } else {
+                PreShoppingScreen(
+                    padding = innerPadding,
+                    viewModel = shoppingViewModel,
+                    onStartPurchase = {
+                        navController.navigate(BottomNavItem.Shopping.route) {
+                            popUpTo(BottomNavItem.Shopping.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+        }
+        composable(Routes.PRODUCT_SEARCH) { ProductSearchScreen() }
+        composable(TopNavItem.Account.route) { AccountScreen(
             padding = innerPadding,
-            navController  = navController
-        )}
+            viewModel = authViewModel
+        ) }
+        composable(Routes.AUTH) { navController.popBackStack() }
+        composable("auth"){
+            AuthScreen(
+                viewModel = authViewModel,
+                padding = innerPadding,
+                navController  = navController
+            )
+        }
     }
 }
