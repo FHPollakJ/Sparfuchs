@@ -64,7 +64,8 @@ dependencies {
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
-    implementation(libs.androidx.material3)                  // Material Design 3
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.material3)                  // Material Design 3 in Alpha version to use ExpressiveAPI
     implementation(libs.androidx.ui.tooling.preview)         // Android Studio Preview
     debugImplementation(libs.androidx.ui.tooling)            // Tooling for Debug
 
