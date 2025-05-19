@@ -1,6 +1,7 @@
 package com.example.sparfuchsapp.utils
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,6 +22,7 @@ import com.example.sparfuchsapp.ui.screens.viewModels.AuthViewModel
 import com.example.sparfuchsapp.ui.screens.shopping.ShoppingViewModel
 
 //Navigation graph, tells what routes show what screen
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavigationGraph(
     navController: NavHostController,

@@ -1,9 +1,7 @@
 package com.example.sparfuchsapp.ui.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -16,13 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.sparfuchsapp.ui.screens.MainScreen
+import com.example.sparfuchsapp.ui.icons.CustomIcons
 import com.example.sparfuchsapp.utils.Routes
-import okhttp3.Route
 
 @Composable
 fun BottomNavBar(navController: NavController) {
@@ -63,7 +59,7 @@ sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: 
     object Home : BottomNavItem(Routes.HOME, Icons.Default.Home, "Home")
     object ProductSearch : BottomNavItem(Routes.PRODUCT_SEARCH, Icons.Default.Search, "Search")
     object Shopping : BottomNavItem(Routes.SHOPPING, Icons.Default.ShoppingCart, "Start\nShopping")
-    object Scanner : BottomNavItem(Routes.SCANNER, Icons.Default.Build, "Scanner\n(DEBUG)")
+    object Scanner : BottomNavItem(Routes.SCANNER, CustomIcons.BarcodeScanner, "Scanner\n(DEBUG)")
     object Settings : BottomNavItem(Routes.SETTINGS, Icons.Default.Settings, "Settings")
 }
 

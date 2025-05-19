@@ -82,12 +82,12 @@ fun AuthScreen(
         }
 
         user?.let {
-            Text("✅ Logged in as: ${it.username}")
+            Text("Logged in as: ${it.username}")
             Log.d("AuthScreen", "Logged in as: ${it.username}")
         }
 
         error?.let {
-            Text("❌ $it", color = Color.Red)
+            Text("Error: $it", color = Color.Red)
             Log.e("AuthScreen", "Error: $it")
         }
     }
