@@ -6,16 +6,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sparfuchsapp.data.remote.RetrofitClient
 import com.example.sparfuchsapp.data.remote.dto.AuthRequestDTO
+import com.example.sparfuchsapp.data.remote.dto.PurchaseDTO
 import com.example.sparfuchsapp.data.remote.dto.UserResponseDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
 
     private val _user = MutableStateFlow<UserResponseDTO?>(null)
     val user: StateFlow<UserResponseDTO?> = _user
-
+    private val _purchases = MutableStateFlow<List<PurchaseDTO>>(emptyList())
+    val purchases:  StateFlow<List<PurchaseDTO>> = _purchases
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
@@ -48,9 +51,25 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _user.value = response.body()
                     _error.value = null
+                    loadPurchases()
                     Log.d("LoginCookies", RetrofitClient.CookieManager.cookieStore.toString())
                 } else {
                     _error.value = "Login failed: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _error.value = "Network error: ${e.message}"
+            }
+        }
+    }
+
+    fun loadPurchases() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.userApi.getPurchases()
+                if (response.isSuccessful) {
+                    _purchases.value = response.body() ?: emptyList()
+                } else {
+                    _error.value = "Failed to load purchases: ${response.code()}"
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"

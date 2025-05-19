@@ -76,7 +76,7 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
                 .align(Alignment.BottomEnd)
                 .padding(padding)
         ) {
-            //TODO: showProductSelector = true;
+            //TODO: showProductSelector
         }
     }
 }

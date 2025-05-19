@@ -1,7 +1,6 @@
 package com.example.sparfuchsapp.ui.screens
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,20 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.sparfuchsapp.ui.screens.viewModels.AuthViewModel
-import java.time.LocalTime
-import androidx.compose.runtime.getValue
 import com.example.sparfuchsapp.ui.theme.SavingsGreen
+import java.time.LocalTime
 
 @Composable
 fun MainScreen(
@@ -30,10 +27,11 @@ fun MainScreen(
     padding: PaddingValues
 ) {
     val user by viewModel.user.collectAsState()
+    val purchases by viewModel.purchases.collectAsState()
     val greeting = getGreeting()
 
-    val savingsText = if(user?.purchases?.sumOf { it.totalSaved } != 0.0) {
-        "€ %.2f".format(user!!.purchases.sumOf { it.totalSaved }).replace('.',',')
+    val savingsText = if(purchases.sumOf { it.totalSaved } != 0.0) {
+        "€ %.2f".format(purchases.sumOf { it.totalSaved }).replace('.',',')
     } else {
         "Start saving :D"
     }
@@ -64,7 +62,7 @@ fun MainScreen(
                 ){
                     Text(text = "Overall Spending")
                     Text(
-                        text = "€ %.2f".format(user!!.purchases.sumOf { it.totalSpent }).replace('.',','),
+                        text = "€ %.2f".format(purchases.sumOf { it.totalSpent }).replace('.',','),
                         style = MaterialTheme.typography.displayLarge,
                         fontWeight = FontWeight.Bold
                     )

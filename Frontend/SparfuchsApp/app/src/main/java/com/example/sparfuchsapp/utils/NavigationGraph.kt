@@ -58,8 +58,8 @@ fun NavigationGraph(
                     padding = innerPadding,
                     viewModel = shoppingViewModel,
                     onStartPurchase = {
-                        navController.navigate(BottomNavItem.Shopping.route) {
-                            popUpTo(BottomNavItem.Shopping.route) { inclusive = true }
+                        navController.navigate(Routes.SHOPPING) {
+                            popUpTo(Routes.SHOPPING) { inclusive = true }
                         }
                     }
                 )
@@ -67,12 +67,11 @@ fun NavigationGraph(
 
         }
         composable(Routes.PRODUCT_SEARCH) { ProductSearchScreen() }
-        composable(TopNavItem.Account.route) { AccountScreen(
+        composable(Routes.ACCOUNT) { AccountScreen(
             padding = innerPadding,
             viewModel = authViewModel
         ) }
-        composable(Routes.AUTH) { navController.popBackStack() }
-        composable("auth"){
+        composable(Routes.AUTH){
             AuthScreen(
                 viewModel = authViewModel,
                 padding = innerPadding,
