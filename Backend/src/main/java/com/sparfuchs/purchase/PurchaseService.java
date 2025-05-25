@@ -212,7 +212,7 @@ public class PurchaseService {
                     purchase.getStore().getId(),
                     purchase.getCreatedAt(),
                     purchaseProductsToDTO(purchase.getProducts()),
-                    false,
+                    purchase.isCompleted(),
                     purchase.getTotalSpent(),
                     purchase.getTotalSaved());
             purchaseDTOS.add(dto);
