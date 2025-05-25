@@ -17,7 +17,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/getProduct")
+    @PostMapping("/getProduct")
     public ResponseEntity<ProductWithPriceDTO> getProductWithPrice(@RequestBody GetProductDTO request) {
         ProductWithPriceDTO product = productService.getProductWithBarcode(request.barcode(), request.storeId());
         return ResponseEntity.ok(product);
