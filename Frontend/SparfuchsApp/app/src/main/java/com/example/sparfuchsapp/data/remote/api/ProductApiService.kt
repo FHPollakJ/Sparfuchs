@@ -10,7 +10,7 @@ import retrofit2.http.POST
 
 interface ProductApiService {
 
-    @GET("products/getProduct")
+    @POST("products/getProduct")
     suspend fun getProduct(@Body request: GetProductDTO): Response<ProductWithPriceDTO>
 
     @POST("products/createProduct")

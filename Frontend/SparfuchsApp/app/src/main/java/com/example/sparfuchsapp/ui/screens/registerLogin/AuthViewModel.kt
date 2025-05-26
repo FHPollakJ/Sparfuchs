@@ -1,4 +1,4 @@
-package com.example.sparfuchsapp.ui.screens.viewModels
+package com.example.sparfuchsapp.ui.screens.registerLogin
 
 import android.content.Context
 import android.util.Log
@@ -6,11 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sparfuchsapp.data.remote.RetrofitClient
 import com.example.sparfuchsapp.data.remote.dto.AuthRequestDTO
+import com.example.sparfuchsapp.data.remote.dto.ProductWithPriceDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseDTO
 import com.example.sparfuchsapp.data.remote.dto.UserResponseDTO
+import com.example.sparfuchsapp.data.remote.dto.UserStatsDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
@@ -21,6 +22,8 @@ class AuthViewModel : ViewModel() {
     val purchases:  StateFlow<List<PurchaseDTO>> = _purchases
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+    private val _userStats = MutableStateFlow<UserStatsDTO?>(null)
+    val userStats: StateFlow<UserStatsDTO?> = _userStats
 
     fun register(email: String, username: String, password: String) {
         viewModelScope.launch {
@@ -52,6 +55,7 @@ class AuthViewModel : ViewModel() {
                     _user.value = response.body()
                     _error.value = null
                     loadPurchases()
+                    getUserStats()
                     Log.d("LoginCookies", RetrofitClient.CookieManager.cookieStore.toString())
                 } else {
                     _error.value = "Login failed: ${response.code()}"
@@ -70,6 +74,27 @@ class AuthViewModel : ViewModel() {
                     _purchases.value = response.body() ?: emptyList()
                 } else {
                     _error.value = "Failed to load purchases: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _error.value = "Network error: ${e.message}"
+            }
+        }
+    }
+
+    fun getUserStats() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.userApi.getStats()
+                if (response.isSuccessful) {
+                    val stats = response.body()
+                    if (stats != null) {
+                        _userStats.value = stats
+                        _error.value = null
+                    } else {
+                        _error.value = "Failed to load stats: empty response"
+                    }
+                } else {
+                    _error.value = "Failed to load stats: ${response.code()}"
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"

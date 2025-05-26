@@ -1,4 +1,4 @@
-package com.example.sparfuchsapp.ui.screens
+package com.example.sparfuchsapp.ui.screens.registerLogin
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,8 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.sparfuchsapp.ui.components.BottomNavItem
-import com.example.sparfuchsapp.ui.screens.viewModels.AuthViewModel
+import com.example.sparfuchsapp.utils.Routes
 
 @Composable
 fun AuthScreen(
@@ -47,7 +46,7 @@ fun AuthScreen(
 
     LaunchedEffect(user) {
         if (user != null) {
-            navController.navigate(BottomNavItem.Home.route) {
+            navController.navigate(Routes.HOME) {
                 popUpTo("auth") { inclusive = true } // remove Auth from backstack
                 launchSingleTop = true // avoid multiple copies of same screen
             }
@@ -61,14 +60,11 @@ fun AuthScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Email")
-        TextField(value = email, onValueChange = { email = it })
+        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
 
-        Text("Username (for registration)")
-        TextField(value = username, onValueChange = { username = it })
+        OutlinedTextField(value = username, onValueChange = { username = it }, label = { Text("Username") })
 
-        Text("Password")
-        TextField(value = password, onValueChange = { password = it }, visualTransformation = PasswordVisualTransformation())
+        OutlinedTextField(value = password, onValueChange = { password = it }, visualTransformation = PasswordVisualTransformation(), label = { Text("Password") })
 
         Spacer(modifier = Modifier.height(8.dp))
         Row (Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){

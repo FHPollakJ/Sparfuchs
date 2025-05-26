@@ -24,6 +24,6 @@ interface PurchaseApiService {
     @DELETE("purchase/deletePurchase")
     suspend fun deletePurchase(@Body request: PurchaseIdDTO)
 
-    @DELETE("purchase/removeProductFromPurchase")
+    @POST("purchase/removeProductFromPurchase")
     suspend fun removeProductFromPurchase(@Body request: PurchaseProductDTO): Response<PurchaseDTO>
 }

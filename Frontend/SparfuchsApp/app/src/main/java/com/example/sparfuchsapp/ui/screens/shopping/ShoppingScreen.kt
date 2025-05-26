@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
@@ -28,18 +27,26 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.sparfuchsapp.data.dataClasses.StoreRepository
 import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
 import com.example.sparfuchsapp.ui.components.ProductCard
 import com.example.sparfuchsapp.ui.icons.CustomIcons
+import com.example.sparfuchsapp.utils.Routes
 
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
+fun ShoppingScreen(
+    padding: PaddingValues,
+    viewModel: ShoppingViewModel,
+    navController: NavController
+) {
     val purchaseState by viewModel.purchase.collectAsState()
     val productList = purchaseState?.products ?: emptyList()
-
+    val store = StoreRepository.getStore(purchaseState!!.storeId)
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false)}
     BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
 
@@ -53,9 +60,9 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            Text("Have fun shopping at ${purchaseState?.storeId ?: "Unknown Store"}")
+            Text("Shopping at ${store.name}")
             if(productList.isEmpty())
-                Text("Your shopping list is empty")
+                Text("Scan your first product to add it to your shopping list!")
             else {
                 Text("Your Shopping List:")
                 LazyColumn(
@@ -90,7 +97,8 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
             expanded = fabMenuExpanded,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
+                .padding(padding)
+            ,
             button = {
                 ToggleFloatingActionButton(
                     checked = fabMenuExpanded,
@@ -103,26 +111,30 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
                 }
             }
         ) {
-            FloatingActionButtonMenuItem(
+            FloatingActionButtonMenuItem(// Add manually
                 onClick = {
                     fabMenuExpanded = false
-                    // Add manually
+                    navController.navigate("${Routes.ADD_PRODUCT}/${purchaseState?.purchaseId}/${purchaseState?.storeId}")
                 },
                 icon = { Icon(Icons.Default.Edit, contentDescription = null) },
-                text = { Text("Add Product") }
+                text = { Text("Add Barcodeless Product") }
             )
-            FloatingActionButtonMenuItem(
+            FloatingActionButtonMenuItem(// Scan
                 onClick = {
                     fabMenuExpanded = false
-                    // Scan
+                    navController.navigate(Routes.SCANNER)
                 },
                 icon = { Icon(CustomIcons.BarcodeScanner, contentDescription = null) },
                 text = { Text("Scan Product") }
             )
-            FloatingActionButtonMenuItem(
+            FloatingActionButtonMenuItem(// Finish shopping
                 onClick = {
                     fabMenuExpanded = false
-                    // Finish shopping
+                    viewModel.finishPurchase(purchaseState?.purchaseId ?: return@FloatingActionButtonMenuItem)
+                    viewModel.clearShoppingList()  // Clear the purchase so UI resets
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.SHOPPING) { inclusive = true }
+                    }
                 },
                 icon = { Icon(CustomIcons.FinishShopping, contentDescription = null) },
                 text = { Text("Finish Shopping") }
@@ -131,24 +143,28 @@ fun ShoppingScreen(padding: PaddingValues, viewModel: ShoppingViewModel) {
     }
 }
 
-
-@Composable
-fun AddProductButton(
-    modifier: Modifier = Modifier,
-    onclick: () -> Unit
-) {
-    // Show a button that adds a new product
-    FloatingActionButton(
-        onClick = onclick,
-        modifier = modifier
-    ) {
-        Icon(Icons.Default.Add, contentDescription = "Add Product")
-    }
-}
+//OLD BUTTON FOR ADDING PRODUCTS
+//@Composable
+//fun AddProductButton(
+//    modifier: Modifier = Modifier,
+//    onclick: () -> Unit
+//) {
+//    // Show a button that adds a new product
+//    FloatingActionButton(
+//        onClick = onclick,
+//        modifier = modifier
+//    ) {
+//        Icon(Icons.Default.Add, contentDescription = "Add Product")
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview(showBackground = true, name = "ShoppingScreenPreview", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun ShoppingScreenPreview() {
-    ShoppingScreen(padding = PaddingValues(0.dp), viewModel = ShoppingViewModel())
+    ShoppingScreen(
+        padding = PaddingValues(0.dp),
+        viewModel = ShoppingViewModel(),
+        navController = NavController(LocalContext.current)
+    )
 }

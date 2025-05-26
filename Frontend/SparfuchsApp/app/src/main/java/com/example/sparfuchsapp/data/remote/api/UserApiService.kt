@@ -3,6 +3,7 @@ package com.example.sparfuchsapp.data.remote.api
 import com.example.sparfuchsapp.data.remote.dto.UserResponseDTO
 import com.example.sparfuchsapp.data.remote.dto.AuthRequestDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseDTO
+import com.example.sparfuchsapp.data.remote.dto.UserStatsDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -30,7 +31,6 @@ interface UserApiService {
     @GET("users/getPurchases")
     suspend fun getPurchases(): Response<List<PurchaseDTO>>
 
-    //@GET("users/getStats")
-    //suspend fun getStats(): Response<UserStatsDTO> TODO: Implement UserStatsDTO
-
+    @GET("users/getStats")
+    suspend fun getStats(): Response<UserStatsDTO>
 }

@@ -7,8 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.sparfuchsapp.ui.screens.viewModels.AuthViewModel
-import com.example.sparfuchsapp.ui.screens.shopping.ShoppingViewModel
+import com.example.sparfuchsapp.ui.screens.registerLogin.AuthViewModel
 
 @Composable
 fun AccountScreen(padding: PaddingValues, viewModel: AuthViewModel) {

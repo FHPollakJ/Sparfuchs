@@ -1,25 +1,32 @@
 package com.example.sparfuchsapp.utils
 
+import android.R.attr.type
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.sparfuchsapp.ui.components.BottomNavItem
-import com.example.sparfuchsapp.ui.components.TopNavItem
+import androidx.navigation.navArgument
+import com.example.sparfuchsapp.data.dataClasses.StoreRepository
+import com.example.sparfuchsapp.data.remote.dto.ProductWithPriceDTO
+import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
 import com.example.sparfuchsapp.ui.screens.AccountScreen
-import com.example.sparfuchsapp.ui.screens.AuthScreen
 import com.example.sparfuchsapp.ui.screens.MainScreen
-import com.example.sparfuchsapp.ui.screens.shopping.PreShoppingScreen
 import com.example.sparfuchsapp.ui.screens.ProductSearchScreen
-import com.example.sparfuchsapp.ui.screens.ScannerScreen
+import com.example.sparfuchsapp.ui.screens.shopping.ScannerScreen
 import com.example.sparfuchsapp.ui.screens.SettingsScreen
+import com.example.sparfuchsapp.ui.screens.shopping.AddProductScreen
+import com.example.sparfuchsapp.ui.screens.shopping.PreShoppingScreen
 import com.example.sparfuchsapp.ui.screens.shopping.ShoppingScreen
-import com.example.sparfuchsapp.ui.screens.viewModels.AuthViewModel
 import com.example.sparfuchsapp.ui.screens.shopping.ShoppingViewModel
+import com.example.sparfuchsapp.ui.screens.registerLogin.AuthScreen
+import com.example.sparfuchsapp.ui.screens.registerLogin.AuthViewModel
+import java.time.LocalDateTime
 
 //Navigation graph, tells what routes show what screen
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -39,10 +46,9 @@ fun NavigationGraph(
         ) }
         composable(Routes.SCANNER) {
             ScannerScreen(
-                onBarcodeScanned = { barcode ->
-                    println("Scanned: $barcode")
-                },
-                onCancel = { false }
+                navController = navController,
+                viewModel = shoppingViewModel,
+                padding = innerPadding
             ) }
         composable(Routes.SETTINGS) { SettingsScreen(
             padding = innerPadding
@@ -50,10 +56,11 @@ fun NavigationGraph(
         composable(Routes.SHOPPING) {
             val purchase = shoppingViewModel.purchase.collectAsState()
 
-            if (purchase.value != null){
+            if (purchase.value != null){ //Waits untill purchase is loaded
                 ShoppingScreen(
                     padding = innerPadding,
-                    viewModel = shoppingViewModel
+                    viewModel = shoppingViewModel,
+                    navController = navController
                 )
             } else {
                 PreShoppingScreen(
@@ -65,19 +72,66 @@ fun NavigationGraph(
                         }
                     }
                 )
+                LaunchedEffect(purchase.value) {
+                    if (purchase.value != null) {
+                        navController.navigate(Routes.SHOPPING) {
+                            popUpTo(Routes.SHOPPING) { inclusive = true }
+                        }
+                    }
+                }
             }
 
         }
         composable(Routes.PRODUCT_SEARCH) { ProductSearchScreen() }
+        composable(
+            route = "${Routes.ADD_PRODUCT}/{purchaseId}/{storeId}?scanBarcode={scanBarcode}",
+            arguments = listOf(
+                navArgument("purchaseId") { type = NavType.LongType },
+                navArgument("storeId") { type = NavType.LongType },
+                navArgument("scanBarcode") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                    nullable = true
+                }
+            )
+        ){ backStackEntry ->
+            val purchaseId = backStackEntry.arguments?.getLong("purchaseId") ?: return@composable
+            val barcode = backStackEntry.arguments?.getString("scanBarcode")
+            val storeId = backStackEntry.arguments?.getLong("storeId") ?: return@composable
+
+            AddProductScreen(
+                purchaseId = purchaseId,
+                scanBarcode = barcode?.takeIf { it.isNotBlank() },
+                onSave = { product ->
+                    if (!product.barcode.isNullOrBlank()) {
+                        shoppingViewModel.createProduct(
+                            product.barcode,
+                            ProductWithPriceDTO(
+                                name = product.productName,
+                                barcode = product.barcode,
+                                price = product.price,
+                                storeId = storeId, // <-- You must pass the storeId here
+                                lastUpdated = LocalDateTime.now()
+                            )
+                        )
+                    }
+                    shoppingViewModel.addProductToPurchase(product)
+                    navController.popBackStack()
+                },
+                onCancel = { navController.popBackStack() },
+                padding = innerPadding
+            )
+        }
         composable(Routes.ACCOUNT) { AccountScreen(
-            padding = innerPadding,
-            viewModel = authViewModel
-        ) }
+                padding = innerPadding,
+                viewModel = authViewModel
+            )
+        }
         composable(Routes.AUTH){
             AuthScreen(
                 viewModel = authViewModel,
                 padding = innerPadding,
-                navController  = navController
+                navController = navController
             )
         }
     }

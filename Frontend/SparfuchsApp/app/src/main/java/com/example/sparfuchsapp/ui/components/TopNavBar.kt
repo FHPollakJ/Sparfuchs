@@ -23,17 +23,11 @@ fun TopNavBar(navController: NavController) {
         navigationIcon = { //BACK BUTTON
             IconButton(
                 onClick = {
-                    navController.navigate(TopNavItem.Back.route){
-                        popUpTo(navController.graph.startDestinationId){
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    navController.popBackStack()
                 }
             ) {
                 Icon(
-                    TopNavItem.Back.icon,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Account"
                 )
             }
@@ -41,7 +35,7 @@ fun TopNavBar(navController: NavController) {
         actions = { //ACCOUNT BUTTON
             IconButton(
                 onClick = {
-                    navController.navigate(TopNavItem.Account.route){
+                    navController.navigate(Routes.ACCOUNT){
                         popUpTo(navController.graph.startDestinationId){
                             saveState = true
                         }
@@ -51,15 +45,10 @@ fun TopNavBar(navController: NavController) {
                 }
             ) {
                 Icon(
-                    TopNavItem.Account.icon,
+                    Icons.Default.AccountCircle,
                     contentDescription = "Back"
                 )
             }
         }
     )
-}
-
-sealed class TopNavItem(val route: String, val icon: ImageVector, val label: String) {
-    object Account : BottomNavItem(Routes.ACCOUNT, Icons.Default.AccountCircle, "Account")
-    object Back : BottomNavItem(Routes.BACK, Icons.AutoMirrored.Filled.ArrowBack, "Back")
 }

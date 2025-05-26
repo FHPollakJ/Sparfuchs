@@ -3,6 +3,7 @@ package com.example.sparfuchsapp.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,9 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
+import com.example.sparfuchsapp.data.remote.dto.calculateTotal
+import com.example.sparfuchsapp.utils.DiscountType
 
 
 @Composable
@@ -38,28 +42,28 @@ fun ProductCard(
     onAmountChange: (Int) -> Unit,
     onRemove: (Any?) -> Unit
 ) {
-    var amountText by remember { mutableStateOf(product.quantity.toString()) }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-    ){
-        Column(Modifier.padding(12.dp)){
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(46.dp)
+            ) {
+                Text(text = product.productName, style = MaterialTheme.typography.titleLarge)
+                Text(text = "€ %.2f".format(product.price), style = MaterialTheme.typography.titleMedium)
+            }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
-                    .height(46.dp)
-            ){
-                Text(text = product.productName, style = MaterialTheme.typography.titleLarge)
-                Text(text = "€ %.2f".format(product.price), style = MaterialTheme.typography.titleMedium)
-            }
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
                         onClick = {
@@ -70,19 +74,25 @@ fun ProductCard(
                             }
                         }
                     ) {
-                        if (product.quantity > 1){
+                        if (product.quantity > 1) {
                             Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Decrease")
                         } else {
                             Icon(Icons.Default.Delete, contentDescription = "Remove")
                         }
-
                     }
+
                     TextField(
-                        value = amountText,
+                        value = product.quantity.toString(),
                         onValueChange = { newValue ->
                             if (newValue.all { it.isDigit() }) {
-                                amountText = newValue
-                                newValue.toIntOrNull()?.let { onAmountChange(it) }
+                                val newQuantity = newValue.toIntOrNull()
+                                if (newQuantity != null) {
+                                    if (newQuantity > 0) {
+                                        onAmountChange(newQuantity)
+                                    } else {
+                                        onRemove(product)
+                                    }
+                                }
                             }
                         },
                         modifier = Modifier
@@ -97,8 +107,46 @@ fun ProductCard(
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Increase")
                     }
                 }
-                Text(text = "Total:\n€ %.2f".format(product.total), style = MaterialTheme.typography.titleLarge)
+
+                val originalTotal = product.price * product.quantity
+                val discountedTotal = product.calculateTotal()
+
+                DiscountedPrice(
+                    originalPrice = originalTotal,
+                    discountedPrice = discountedTotal,
+                    hasDiscount = discountedTotal < originalTotal
+                )
             }
+        }
+    }
+}
+
+@Composable
+fun DiscountedPrice(
+    originalPrice: Double,
+    discountedPrice: Double,
+    hasDiscount: Boolean
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (hasDiscount) {
+            Text(
+                text = "€ %.2f".format(discountedPrice),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "€ %.2f".format(originalPrice),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    textDecoration = TextDecoration.LineThrough,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            )
+        } else {
+            Text(
+                text = "€ %.2f".format(originalPrice),
+                style = MaterialTheme.typography.titleLarge
+            )
         }
     }
 }
@@ -113,6 +161,7 @@ fun ProductCardPreview() {
         quantity = 2,
         purchaseId = 1,
         discount = 25
+        //, discountType = DiscountType.PERCENTAGE_OFF_ONE_ITEM
     )
 
     ProductCard(
