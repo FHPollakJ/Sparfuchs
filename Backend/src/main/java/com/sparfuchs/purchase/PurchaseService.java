@@ -79,6 +79,7 @@ public class PurchaseService {
 
         PurchaseProduct purchaseProduct = productService.createPurchaseProduct(
                 purchase,
+                product,
                 request.quantity(),
                 request.discount(),
                 storeProduct.getProduct().getName(),
@@ -87,7 +88,6 @@ public class PurchaseService {
 
         purchaseProductRepository.save(purchaseProduct);
         purchase.getProducts().add(purchaseProduct);
-        purchaseRepository.save(purchase);
         return new PurchaseDTO(purchase.getId(),
                 purchase.getStore().getId(),
                 LocalDateTime.now(),
@@ -98,10 +98,35 @@ public class PurchaseService {
     }
 
     @Transactional
+    public PurchaseDTO editProductInPurchase(PurchaseProductDTO request, long userId) {
+        Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
+
+        productRepository.findByBarcode(request.barcode())
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        for (PurchaseProduct p : purchase.getProducts()) {
+            if (Objects.equals(request.barcode(), p.getProduct().getBarcode())) {
+                p.setQuantity(request.quantity());
+                p.setPrice(request.price());
+                p.setDiscountPercent(request.discount());
+                purchaseProductRepository.save(p);
+                break;
+            }
+        }
+        return new PurchaseDTO(purchase.getId(),
+                purchase.getStore().getId(),
+                LocalDateTime.now(),
+                purchaseProductsToDTO(purchase.getProducts()),
+                false,
+                purchase.getTotalSpent(),
+                purchase.getTotalSaved());
+    }
+
+
+    @Transactional
     public void finishPurchase(long purchaseId, long userId) {
         Purchase purchase = getValidatedEditablePurchase(purchaseId, userId);
         purchase.complete();
-        purchaseRepository.save(purchase);
     }
 
     @Transactional
@@ -124,8 +149,6 @@ public class PurchaseService {
         purchase.getProducts().remove(productToRemove);
         purchaseProductRepository.delete(productToRemove);
 
-        purchaseRepository.save(purchase);
-
         return new PurchaseDTO(
                 purchase.getId(),
                 purchase.getStore().getId(),
@@ -142,7 +165,7 @@ public class PurchaseService {
     public PurchaseDTO addNoBarcodeProductToPurchase(PurchaseProductDTO request, long userId) {
         Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
 
-        PurchaseProduct purchaseProduct = productService.createPurchaseProduct(
+        PurchaseProduct purchaseProduct = productService.createPurchaseProductWithoutBarcode(
                 purchase,
                 request.quantity(),
                 request.discount(),
@@ -152,7 +175,7 @@ public class PurchaseService {
 
         purchaseProductRepository.save(purchaseProduct);
         purchase.getProducts().add(purchaseProduct);
-        purchaseRepository.save(purchase);
+
         return new PurchaseDTO(
                 purchase.getId(),
                 purchase.getStore().getId(),

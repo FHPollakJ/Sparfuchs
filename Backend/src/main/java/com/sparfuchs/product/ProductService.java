@@ -69,6 +69,7 @@ public class ProductService {
         storeProductRepository.save(storeProduct);
     }
 
+    @Transactional
     public void updateProduct(ProductWithPriceDTO request) {
         Product product = productRepository.findByBarcode(request.barcode())
                 .orElseThrow(() -> new NotFoundException("Product not found."));
@@ -84,11 +85,9 @@ public class ProductService {
                 storeProduct.setPrice(request.price());
                 storeProduct.setLastUpdated(LocalDateTime.now());
                 storeProductPriceHistoryRepository.save(priceHistory);
-                storeProductRepository.save(storeProduct);
         }
-        if(Objects.equals(product.getName(), request.name())) {
+        if(!Objects.equals(product.getName(), request.name())) {
             product.setName(request.name());
-            productRepository.save(product);
         }
 
     }
@@ -109,7 +108,11 @@ public class ProductService {
     }
 
 
-    public PurchaseProduct createPurchaseProduct(Purchase purchase, int quantity, int discount, String productName, double price) {
+    public PurchaseProduct createPurchaseProduct(Purchase purchase,Product product, int quantity, int discount, String productName, double price) {
+        return new PurchaseProduct(purchase,product, quantity, discount, productName, price);
+    }
+
+    public PurchaseProduct createPurchaseProductWithoutBarcode(Purchase purchase, int quantity, int discount, String productName, double price) {
         return new PurchaseProduct(purchase, quantity, discount, productName, price);
     }
 }

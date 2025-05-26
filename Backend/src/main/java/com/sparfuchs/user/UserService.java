@@ -25,7 +25,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.purchaseService = purchaseService;
     }
-
+    @Transactional
     public UserResponseDTO register(AuthRequestDTO request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new BadRequestException("Email is already in use.");
@@ -72,8 +72,6 @@ public class UserService {
         if (request.password() != null) {
             user.setPassword(passwordEncoder.encode(request.password()));
         }
-
-        userRepository.save(user);
 
         return new UserResponseDTO(user.getUsername(),user.getEmail());
     }

@@ -26,19 +26,26 @@ public class PurchaseController {
         PurchaseDTO purchase = purchaseService.addProductToPurchase(request, (long)session.getAttribute("userId"));
         return ResponseEntity.ok(purchase);
     }
+
+    @PatchMapping("/editProductInPurchase")
+    public ResponseEntity<PurchaseDTO> editProductInPurchase(@RequestBody PurchaseProductDTO request, HttpSession session) {
+        PurchaseDTO purchase = purchaseService.editProductInPurchase(request, (long)session.getAttribute("userId"));
+        return ResponseEntity.ok(purchase);
+    }
+
     @PatchMapping("/finishPurchase")
     public ResponseEntity<Void> finishPurchase(@RequestBody PurchaseIdDTO request, HttpSession session) {
         purchaseService.finishPurchase(request.purchaseId(), (long) session.getAttribute("userId"));
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/deletePurchase")
+    @PostMapping("/deletePurchase")
     public ResponseEntity<Void> deletePurchase(@RequestBody PurchaseIdDTO request, HttpSession session) {
         purchaseService.deleteIncompletePurchase(request.purchaseId(), (long) session.getAttribute("userId"));
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/removeProductFromPurchase")
+    @PostMapping("/removeProductFromPurchase")
     public ResponseEntity<PurchaseDTO> removeProductFromPurchase(@RequestBody PurchaseProductDTO request, HttpSession session) {
         PurchaseDTO purchase = purchaseService.removeProductFromPurchase(request, (long) session.getAttribute("userId"));
         return ResponseEntity.ok(purchase);

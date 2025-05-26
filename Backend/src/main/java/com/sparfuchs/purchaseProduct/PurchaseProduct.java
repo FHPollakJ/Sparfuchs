@@ -22,12 +22,30 @@ public class PurchaseProduct {
 
     protected PurchaseProduct() {}
 
+    public PurchaseProduct(Purchase purchase, Product product, int quantity, int discountPercentage, String name, double price) {
+        this.purchase = purchase;
+        this.product = product;
+        this.quantity = quantity;
+        this.discountPercent = discountPercentage;
+        this.price = price;
+    }
     public PurchaseProduct(Purchase purchase, int quantity, int discountPercentage, String name, double price) {
         this.purchase = purchase;
         this.quantity = quantity;
         this.discountPercent = discountPercentage;
-        this.name = name;
         this.price = price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setDiscountPercent(int discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public Long getId() {
@@ -60,6 +78,10 @@ public class PurchaseProduct {
         double originalPrice = this.getPrice();
         double savingsPerItem = originalPrice * ((double) discountPercent / 100);
         return savingsPerItem * quantity;
+    }
+
+    public Product getProduct() {
+        return product;
     }
 }
 

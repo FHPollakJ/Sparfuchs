@@ -16,7 +16,7 @@ public class ProductController {
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-
+    // black magic get geht nicht
     @PostMapping("/getProduct")
     public ResponseEntity<ProductWithPriceDTO> getProductWithPrice(@RequestBody GetProductDTO request) {
         ProductWithPriceDTO product = productService.getProductWithBarcode(request.barcode(), request.storeId());
