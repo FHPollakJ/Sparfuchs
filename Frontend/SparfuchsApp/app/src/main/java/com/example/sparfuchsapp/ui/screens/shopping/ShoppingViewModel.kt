@@ -153,6 +153,16 @@ class ShoppingViewModel : ViewModel() {
         }
     }
 
+    fun editProductInPurchase(product: PurchaseProductDTO) {
+        viewModelScope.launch {
+            try {
+                RetrofitClient.purchaseApi.editProductInPurchase(product)
+            } catch (e: Exception) {
+                _error.value = "Network error: ${e.message}"
+            }
+        }
+    }
+
     fun clearShoppingList(){
         _purchase.value = null
     }

@@ -21,6 +21,9 @@ interface PurchaseApiService {
     @PATCH("purchase/finishPurchase")
     suspend fun finishPurchase(@Body request: PurchaseIdDTO)
 
+    @PATCH("purchase/editProductInPurchase")
+    suspend fun editProductInPurchase(@Body request: PurchaseProductDTO)
+
     @DELETE("purchase/deletePurchase")
     suspend fun deletePurchase(@Body request: PurchaseIdDTO)
 

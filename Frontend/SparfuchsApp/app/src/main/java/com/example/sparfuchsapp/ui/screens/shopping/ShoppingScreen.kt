@@ -83,7 +83,7 @@ fun ShoppingScreen(
                         ProductCard(
                             product = product,
                             onAmountChange = { newQty ->
-                                viewModel.addProductToPurchase(product.copy(quantity = newQty))
+                                viewModel.editProductInPurchase(product.copy(quantity = newQty))
                             },
                             onRemove = {
                                 viewModel.removeProductFromPurchase(product)

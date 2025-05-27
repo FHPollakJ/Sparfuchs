@@ -71,6 +71,7 @@ class AuthViewModel : ViewModel() {
             try {
                 val response = RetrofitClient.userApi.getPurchases()
                 if (response.isSuccessful) {
+                    Log.d("PurchaseResponse", "Fetching purchases successful")
                     _purchases.value = response.body() ?: emptyList()
                 } else {
                     _error.value = "Failed to load purchases: ${response.code()}"
