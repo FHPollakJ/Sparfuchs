@@ -98,20 +98,23 @@ public class PurchaseService {
     }
 
     @Transactional
-    public PurchaseDTO editProductInPurchase(PurchaseProductDTO request, long userId) {
+    public PurchaseDTO editProductInPurchase(EditPurchaseProductDTO request, long userId) {
         Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
 
         productRepository.findByBarcode(request.barcode())
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
         for (PurchaseProduct p : purchase.getProducts()) {
-            if (Objects.equals(request.barcode(), p.getProduct().getBarcode())) {
-                p.setQuantity(request.quantity());
-                p.setPrice(request.price());
-                p.setDiscountPercent(request.discount());
-                purchaseProductRepository.save(p);
-                break;
+            if(p.getProduct() != null){
+                if (Objects.equals(request.barcode(), p.getProduct().getBarcode())) {
+                    p.setQuantity(request.quantity());
+                    p.setPrice(request.price());
+                    p.setDiscountPercent(request.discount());
+                    purchaseProductRepository.save(p);
+                    break;
+                }
             }
+
         }
         return new PurchaseDTO(purchase.getId(),
                 purchase.getStore().getId(),
