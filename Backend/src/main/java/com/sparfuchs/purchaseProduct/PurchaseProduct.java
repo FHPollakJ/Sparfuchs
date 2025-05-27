@@ -34,6 +34,7 @@ public class PurchaseProduct {
         this.quantity = quantity;
         this.discountPercent = discountPercentage;
         this.price = price;
+        this.name = name;
     }
 
     public void setPrice(double price) {
