@@ -28,7 +28,7 @@ public class PurchaseController {
     }
 
     @PatchMapping("/editProductInPurchase")
-    public ResponseEntity<PurchaseDTO> editProductInPurchase(@RequestBody PurchaseProductDTO request, HttpSession session) {
+    public ResponseEntity<PurchaseDTO> editProductInPurchase(@RequestBody EditPurchaseProductDTO request, HttpSession session) {
         PurchaseDTO purchase = purchaseService.editProductInPurchase(request, (long)session.getAttribute("userId"));
         return ResponseEntity.ok(purchase);
     }
