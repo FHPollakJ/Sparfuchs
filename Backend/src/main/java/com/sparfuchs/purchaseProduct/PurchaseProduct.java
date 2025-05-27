@@ -28,6 +28,7 @@ public class PurchaseProduct {
         this.quantity = quantity;
         this.discountPercent = discountPercentage;
         this.price = price;
+        this.name = name;
     }
     public PurchaseProduct(Purchase purchase, int quantity, int discountPercentage, String name, double price) {
         this.purchase = purchase;
