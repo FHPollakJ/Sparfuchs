@@ -240,4 +240,17 @@ public class PurchaseService {
         }
         return purchaseDTOS;
     }
+
+    public PurchaseDTO getPurchase(PurchaseIdDTO request, long userId) {
+        Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
+        return new PurchaseDTO(
+                purchase.getId(),
+                purchase.getStore().getId(),
+                LocalDateTime.now(),
+                purchaseProductsToDTO(purchase.getProducts()),
+                false,
+                purchase.getTotalSpent(),
+                purchase.getTotalSaved()
+        );
+    }
 }
