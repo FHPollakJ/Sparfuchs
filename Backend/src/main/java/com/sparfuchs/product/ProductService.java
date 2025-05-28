@@ -55,42 +55,49 @@ public class ProductService {
     }
     @Transactional
     public void createNewProduct(ProductWithPriceDTO request) {
-        if (productRepository.findByBarcode(request.barcode()).isPresent()) {
-            throw new BadRequestException("A product with this barcode already exists.");
-        }
+        Product product = getOrCreateProduct(request.barcode(), request.name());
+        createStoreProductIfNotExists(product, request.storeId(), request.price(), request.lastUpdated());
+    }
 
-        Product product = new Product(request.barcode(), request.name());
-        product = productRepository.save(product);
+    private Product getOrCreateProduct(String barcode, String name) {
+        return productRepository.findByBarcode(barcode)
+                .orElseGet(() -> productRepository.save(new Product(barcode, name)));
+    }
 
-        Store store = storeRepository.findById(request.storeId())
+    private void createStoreProductIfNotExists(Product product, long storeId, double price, LocalDateTime lastUpdated) {
+        Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new NotFoundException("Store not found."));
 
-        StoreProduct storeProduct = new StoreProduct(product, store, request.price(), request.lastUpdated());
+        if (storeProductRepository.findByProductAndStoreId(product, storeId).isPresent()) {
+            throw new BadRequestException("A product with this barcode already exists in this store.");
+        }
+
+        StoreProduct storeProduct = new StoreProduct(product, store, price, lastUpdated);
         storeProductRepository.save(storeProduct);
     }
-
-    @Transactional
-    public void updateProduct(ProductWithPriceDTO request) {
-        Product product = productRepository.findByBarcode(request.barcode())
-                .orElseThrow(() -> new NotFoundException("Product not found."));
-        StoreProduct storeProduct = storeProductRepository.findByProductAndStoreId(product,request.storeId())
-                .orElseThrow(() -> new NotFoundException("Product not found in this store"));
-        if (storeProduct.getPrice() != request.price()) {
-                StoreProductPriceHistory priceHistory = new StoreProductPriceHistory(
-                       storeProduct,
-                       storeProduct.getPrice(),
-                       storeProduct.getLastUpdated(),
-                      LocalDateTime.now()
-                );
-                storeProduct.setPrice(request.price());
-                storeProduct.setLastUpdated(LocalDateTime.now());
-                storeProductPriceHistoryRepository.save(priceHistory);
-        }
-        if(!Objects.equals(product.getName(), request.name())) {
-            product.setName(request.name());
-        }
-
-    }
+    
+//    @Transactional
+//    public void updateProduct(ProductWithPriceDTO request) {
+//        Product product = productRepository.findByBarcode(request.barcode())
+//                .orElseThrow(() -> new NotFoundException("Product not found."));
+//        StoreProduct storeProduct = storeProductRepository.findByProductAndStoreId(product,request.storeId())
+//                .orElseGet(() -> createStoreProduct(product, purchase.getStore().getId()));
+//        if (storeProduct.getPrice() != request.price()) {
+//                StoreProductPriceHistory priceHistory = new StoreProductPriceHistory(
+//                       storeProduct,
+//                       storeProduct.getPrice(),
+//                       storeProduct.getLastUpdated(),
+//                       LocalDateTime.now()
+//                );
+//                storeProduct.setPrice(request.price());
+//                storeProduct.setLastUpdated(LocalDateTime.now());
+//                storeProductPriceHistoryRepository.save(priceHistory);
+//        }
+//        if(!Objects.equals(product.getName(), request.name())) {
+//            product.setName(request.name());
+//        }
+//
+//    }
 
     public List<ProductPriceHistoryDTO> getPriceHistoryForProduct(ProductWithPriceDTO request) {
         Product product = productRepository.findByBarcode(request.barcode())
