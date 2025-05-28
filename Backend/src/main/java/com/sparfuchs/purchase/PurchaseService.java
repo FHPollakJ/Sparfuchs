@@ -101,29 +101,23 @@ public class PurchaseService {
     public PurchaseDTO editProductInPurchase(EditPurchaseProductDTO request, long userId) {
         Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
 
-        productRepository.findByBarcode(request.barcode())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
-
         for (PurchaseProduct p : purchase.getProducts()) {
-            if(p.getProduct() != null){
-                if (Objects.equals(request.barcode(), p.getProduct().getBarcode())) {
+            if(p.getId() == request.purchaseId()){
                     p.setQuantity(request.quantity());
-                    p.setPrice(request.price());
                     p.setDiscountPercent(request.discount());
                     purchaseProductRepository.save(p);
-                    break;
-                }
+                    return new PurchaseDTO(purchase.getId(),
+                        purchase.getStore().getId(),
+                        LocalDateTime.now(),
+                        purchaseProductsToDTO(purchase.getProducts()),
+                        false,
+                        purchase.getTotalSpent(),
+                        purchase.getTotalSaved());
             }
-
         }
-        return new PurchaseDTO(purchase.getId(),
-                purchase.getStore().getId(),
-                LocalDateTime.now(),
-                purchaseProductsToDTO(purchase.getProducts()),
-                false,
-                purchase.getTotalSpent(),
-                purchase.getTotalSaved());
+            throw new NotFoundException("Product not found in purchase.");
     }
+
 
 
     @Transactional
@@ -197,6 +191,7 @@ public class PurchaseService {
         List<PurchaseProductResponseDTO> purchaseProductDTO = new ArrayList<>();
         for(PurchaseProduct product : purchaseProducts){
             PurchaseProductResponseDTO dto = new PurchaseProductResponseDTO(
+                    product.getId(),
                     product.getName(),
                     product.getQuantity(),
                     product.getDiscountPercent(),
