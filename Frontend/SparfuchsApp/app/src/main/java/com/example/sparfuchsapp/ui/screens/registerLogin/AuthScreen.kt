@@ -155,6 +155,7 @@ fun AuthScreen(
                             Modifier.fillMaxWidth(0.8f),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
+                            val isFormValid = email.isNotBlank() && password.isNotBlank()
                             Button(
                                 onClick = {
                                     if (isRegistering) {
@@ -163,7 +164,7 @@ fun AuthScreen(
                                         viewModel.login(email, password)
                                     }
                                 },
-                                enabled = !loading
+                                enabled = isFormValid
                             ) {
                                 Text(if (isRegistering) "Register" else "Login")
                             }

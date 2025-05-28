@@ -12,7 +12,8 @@ data class PurchaseProductDTO(
     val price: Double,
     @Transient val discountType: DiscountType = DiscountType.NONE,
     val discount: Int = 0,
-    @Transient val discountThreshold: Int? = null
+    @Transient val discountThreshold: Int? = null,
+    @Transient val productId: Long? = null
 )
 
 fun PurchaseProductDTO.calculateTotal(): Double {

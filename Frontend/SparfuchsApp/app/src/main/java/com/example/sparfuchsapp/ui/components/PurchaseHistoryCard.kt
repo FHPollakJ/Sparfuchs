@@ -37,82 +37,83 @@ fun PurchaseHistory(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
-    ) {
-        purchasesByMonth
+    ) { purchasesByMonth
             .toSortedMap(compareByDescending { it }) // Sort by latest month first
             .forEach { (monthStart, purchasesInMonth) ->
 
-                val monthLabel = monthStart.format(DateTimeFormatter.ofPattern("MMMM"))
-                val totalSavedByMonth = purchasesInMonth.sumOf { it.totalSaved }
+            val monthLabel = monthStart.format(DateTimeFormatter.ofPattern("MMMM"))
+            val totalSavedByMonth = purchasesInMonth.sumOf { it.totalSaved }
 
-                item {
-                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                        Text(
-                            text = monthLabel,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Total Savings: € %.2f".format(totalSavedByMonth),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+            item {
+                Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                    Text(
+                        text = monthLabel,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Total Savings: € %.2f".format(totalSavedByMonth),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
+            }
 
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            purchasesInMonth.forEachIndexed { index, purchase ->
-                                val store = StoreRepository.getStore(purchase.storeId)
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        purchasesInMonth
+                            .sortedByDescending { it.lastUpdated }
+                            .forEachIndexed { index, purchase ->
+                            val store = StoreRepository.getStore(purchase.storeId)
 
-                                Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            text = store.name,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        Text("€ %.2f".format(purchase.totalSpent))
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                            contentDescription = "Arrow",
-                                            modifier = Modifier.size(12.dp)
-                                        )
-                                    }
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            purchase.lastUpdated.format(
-                                                DateTimeFormatter.ofPattern("EE, dd.MM.yyyy")
-                                            )
-                                        )
-
-                                        Text(
-                                            text = "Savings € %.2f".format(purchase.totalSaved),
-                                            color = moneySavedLight
-                                        )
-                                    }
+                            Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = store.name,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text("€ %.2f".format(purchase.totalSpent))
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        contentDescription = "Arrow",
+                                        modifier = Modifier.size(12.dp)
+                                    )
                                 }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        purchase.lastUpdated.format(
+                                            DateTimeFormatter.ofPattern("EE, dd.MM.yyyy")
+                                        )
+                                    )
 
-                                if (index != purchasesInMonth.lastIndex) {
-                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                                    Text(
+                                        text = "Savings € %.2f".format(purchase.totalSaved),
+                                        color = moneySavedLight
+                                    )
                                 }
+                            }
+
+                            if (index != purchasesInMonth.lastIndex) {
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                             }
                         }
                     }
                 }
             }
+        }
     }
 }
 

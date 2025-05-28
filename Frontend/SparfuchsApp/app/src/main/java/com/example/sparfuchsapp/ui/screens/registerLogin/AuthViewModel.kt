@@ -9,6 +9,7 @@ import com.example.sparfuchsapp.data.remote.dto.AuthRequestDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseDTO
 import com.example.sparfuchsapp.data.remote.dto.UserResponseDTO
 import com.example.sparfuchsapp.data.remote.dto.UserStatsDTO
+import com.example.sparfuchsapp.utils.translateErrorMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -38,7 +39,7 @@ class AuthViewModel : ViewModel() {
 
                     login(email, password, manageLoading = false) // Login after registration, passing flag to avoid loading in register
                 } else {
-                    _error.value = "Registration failed: ${response.code()}"
+                    _error.value = "Registration failed: ${translateErrorMessage(response.errorBody())}"
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
@@ -61,7 +62,7 @@ class AuthViewModel : ViewModel() {
                     getUserStats()
                     Log.d("LoginCookies", RetrofitClient.CookieManager.cookieStore.toString())
                 } else {
-                    _error.value = "Login failed: ${response.code()}"
+                    _error.value = "Login failed: ${translateErrorMessage(response.errorBody())}"
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
@@ -79,7 +80,7 @@ class AuthViewModel : ViewModel() {
                     Log.d("PurchaseResponse", "Fetching purchases successful")
                     _purchases.value = response.body() ?: emptyList()
                 } else {
-                    _error.value = "Failed to load purchases: ${response.code()}"
+                    _error.value = "Failed to load purchases: ${translateErrorMessage(response.errorBody())}"
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
@@ -100,7 +101,7 @@ class AuthViewModel : ViewModel() {
                         _error.value = "Failed to load stats: empty response"
                     }
                 } else {
-                    _error.value = "Failed to load stats: ${response.code()}"
+                    _error.value = "Failed to load stats: ${response.message()}"
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"

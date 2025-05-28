@@ -3,10 +3,9 @@ package com.example.sparfuchsapp.data.remote.dto
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class PurchaseProductResponseDTO (
+data class EditPurchaseProductDTO (
     val id: Long,
-    val productName: String,
+    val purchaseId: Long,
     val quantity: Int,
-    val discount: Int,
-    val price: Double
+    val discount: Int
 )

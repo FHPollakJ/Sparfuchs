@@ -1,5 +1,6 @@
 package com.example.sparfuchsapp.data.remote.api
 
+import com.example.sparfuchsapp.data.remote.dto.EditPurchaseProductDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseIdDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
@@ -22,7 +23,7 @@ interface PurchaseApiService {
     suspend fun finishPurchase(@Body request: PurchaseIdDTO)
 
     @PATCH("purchase/editProductInPurchase")
-    suspend fun editProductInPurchase(@Body request: PurchaseProductDTO)
+    suspend fun editProductInPurchase(@Body request: EditPurchaseProductDTO)
 
     @DELETE("purchase/deletePurchase")
     suspend fun deletePurchase(@Body request: PurchaseIdDTO)

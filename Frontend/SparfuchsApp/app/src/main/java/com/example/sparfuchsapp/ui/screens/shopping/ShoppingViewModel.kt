@@ -4,15 +4,18 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sparfuchsapp.data.remote.RetrofitClient
+import com.example.sparfuchsapp.data.remote.dto.EditPurchaseProductDTO
 import com.example.sparfuchsapp.data.remote.dto.GetProductDTO
 import com.example.sparfuchsapp.data.remote.dto.ProductWithPriceDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseIdDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
+import com.example.sparfuchsapp.data.remote.dto.PurchaseProductResponseDTO
 import com.example.sparfuchsapp.data.remote.dto.StartPurchaseDTO
+import com.example.sparfuchsapp.utils.translateErrorMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -20,8 +23,8 @@ class ShoppingViewModel : ViewModel() {
     private val _purchase = MutableStateFlow<PurchaseDTO?>(null)
     val purchase: StateFlow<PurchaseDTO?> get() = _purchase
 
-    private val _productList = MutableStateFlow<List<PurchaseProductDTO>>(emptyList())
-    val productList = _productList.asStateFlow()
+    private val _productList = MutableStateFlow<List<PurchaseProductResponseDTO>>(emptyList())
+    val productList: StateFlow<List<PurchaseProductResponseDTO>> = _productList
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
@@ -40,7 +43,7 @@ class ShoppingViewModel : ViewModel() {
                     _error.value = null
                     Log.d("StartPurchaseCookies", RetrofitClient.CookieManager.cookieStore.toString())
                 } else {
-                    _error.value = "Start purchase failed: ${response.code()}"
+                    _error.value = "Start purchase failed: ${translateErrorMessage(response.errorBody())}"
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
@@ -67,7 +70,7 @@ class ShoppingViewModel : ViewModel() {
                         _purchase.value = response.body()
                         _error.value = null
                     } else {
-                        _error.value = "Add product to purchase failed: ${response.code()}"
+                        _error.value = "Add product to purchase failed: ${translateErrorMessage(response.errorBody())}"
                     }
                 } catch (e: Exception){
                     _error.value = "Network error: ${e.message}"
@@ -94,7 +97,7 @@ class ShoppingViewModel : ViewModel() {
                         _purchase.value = response.body()
                         _error.value = null
                     } else {
-                        _error.value = "Remove product from purchase failed: ${response.code()}"
+                        _error.value = "Remove product from purchase failed: ${translateErrorMessage(response.errorBody())}"
                     }
                 } catch (e: Exception) {
                     _error.value = "Network error: ${e.message}"
@@ -114,7 +117,7 @@ class ShoppingViewModel : ViewModel() {
                     _error.value = null
                     onResult(product)
                 } else { //No Product found
-                    _error.value = "Get product failed: ${response.code()}"
+                    _error.value = "Get product failed: ${translateErrorMessage(response.errorBody())}"
                     onResult(null)
                 }
             } catch (e: Exception) {
@@ -153,10 +156,22 @@ class ShoppingViewModel : ViewModel() {
         }
     }
 
-    fun editProductInPurchase(product: PurchaseProductDTO) {
+    fun editProductInPurchase(product: EditPurchaseProductDTO) {
         viewModelScope.launch {
             try {
                 RetrofitClient.purchaseApi.editProductInPurchase(product)
+                _purchase.update { current ->
+                    current?.copy(
+                        products = current.products.map {
+                            if (it.id == product.id) {
+                                it.copy(
+                                    quantity = product.quantity,
+                                    discount = product.discount
+                                )
+                            } else it
+                        }
+                    )
+                }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
             }
