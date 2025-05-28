@@ -92,7 +92,7 @@ public class PurchaseService {
                 purchase.getStore().getId(),
                 LocalDateTime.now(),
                 purchaseProductsToDTO(purchase.getProducts()),
-                false,
+                purchase.isCompleted(),
                 purchase.getTotalSpent(),
                 purchase.getTotalSaved());
     }
@@ -110,7 +110,7 @@ public class PurchaseService {
                         purchase.getStore().getId(),
                         LocalDateTime.now(),
                         purchaseProductsToDTO(purchase.getProducts()),
-                        false,
+                        purchase.isCompleted(),
                         purchase.getTotalSpent(),
                         purchase.getTotalSaved());
             }
@@ -151,7 +151,7 @@ public class PurchaseService {
                 purchase.getStore().getId(),
                 LocalDateTime.now(),
                 purchaseProductsToDTO(purchase.getProducts()),
-                false,
+                purchase.isCompleted(),
                 purchase.getTotalSpent(),
                 purchase.getTotalSaved()
         );
@@ -178,7 +178,7 @@ public class PurchaseService {
                 purchase.getStore().getId(),
                 LocalDateTime.now(),
                 purchaseProductsToDTO(purchase.getProducts()),
-                false,
+                purchase.isCompleted(),
                 purchase.getTotalSpent(),
                 purchase.getTotalSaved()
         );
@@ -248,7 +248,7 @@ public class PurchaseService {
                 purchase.getStore().getId(),
                 LocalDateTime.now(),
                 purchaseProductsToDTO(purchase.getProducts()),
-                false,
+                purchase.isCompleted(),
                 purchase.getTotalSpent(),
                 purchase.getTotalSaved()
         );
