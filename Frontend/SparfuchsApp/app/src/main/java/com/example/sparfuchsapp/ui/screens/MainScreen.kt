@@ -18,9 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.sparfuchsapp.ui.theme.moneySavedLight
 import com.example.sparfuchsapp.ui.components.PurchaseHistory
 import com.example.sparfuchsapp.ui.screens.registerLogin.AuthViewModel
-import com.example.sparfuchsapp.ui.theme.SavingsGreen
+import com.example.sparfuchsapp.ui.theme.SparfuchsAppTheme
 import java.time.LocalTime
 
 @Composable
@@ -73,7 +74,7 @@ fun MainScreen(
                         text =  "€ %.2f".format(stats?.totalAmountSaved ?: 0.0).replace('.',','),
                         style = MaterialTheme.typography.displayLarge,
                         fontWeight = FontWeight.Bold,
-                        color = SavingsGreen
+                        color = moneySavedLight
                     )
                 }
             }
@@ -107,5 +108,7 @@ fun getGreeting(): String {
 @Preview(showBackground = true, name = "MainMenuPreview", uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun MainMenuScreenPreview() {
-    MainScreen(viewModel = AuthViewModel(), padding = PaddingValues(0.dp))
+    SparfuchsAppTheme {
+        MainScreen(viewModel = AuthViewModel(), padding = PaddingValues(0.dp))
+    }
 }

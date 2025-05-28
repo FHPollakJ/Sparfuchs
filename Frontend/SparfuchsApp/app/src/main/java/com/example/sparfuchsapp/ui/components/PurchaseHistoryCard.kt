@@ -9,11 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,10 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.sparfuchsapp.data.dataClasses.Store
 import com.example.sparfuchsapp.data.dataClasses.StoreRepository
 import com.example.sparfuchsapp.data.remote.dto.PurchaseDTO
-import com.example.sparfuchsapp.ui.theme.SavingsGreen
+import com.example.sparfuchsapp.ui.theme.moneySavedLight
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -99,15 +97,16 @@ fun PurchaseHistory(
                                                 DateTimeFormatter.ofPattern("EE, dd.MM.yyyy")
                                             )
                                         )
+
                                         Text(
                                             text = "Savings € %.2f".format(purchase.totalSaved),
-                                            color = SavingsGreen
+                                            color = moneySavedLight
                                         )
                                     }
                                 }
 
                                 if (index != purchasesInMonth.lastIndex) {
-                                    Divider(modifier = Modifier.padding(vertical = 4.dp))
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                                 }
                             }
                         }

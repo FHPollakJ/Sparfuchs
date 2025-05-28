@@ -143,21 +143,6 @@ fun ShoppingScreen(
     }
 }
 
-//OLD BUTTON FOR ADDING PRODUCTS
-//@Composable
-//fun AddProductButton(
-//    modifier: Modifier = Modifier,
-//    onclick: () -> Unit
-//) {
-//    // Show a button that adds a new product
-//    FloatingActionButton(
-//        onClick = onclick,
-//        modifier = modifier
-//    ) {
-//        Icon(Icons.Default.Add, contentDescription = "Add Product")
-//    }
-//}
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview(showBackground = true, name = "ShoppingScreenPreview", uiMode = UI_MODE_NIGHT_YES)
 @Composable

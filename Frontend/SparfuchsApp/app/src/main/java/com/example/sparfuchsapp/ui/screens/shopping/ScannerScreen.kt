@@ -109,7 +109,7 @@ fun ScannerScreen(
                                 PurchaseProductDTO(
                                     purchaseId = viewModel.purchase.value?.purchaseId ?: 0L,
                                     barcode = foundProduct!!.barcode,
-                                    productName = foundProduct!!.name, // You might want to pass productName from the product object if you kept it
+                                    productName = foundProduct!!.name,
                                     quantity = 1,
                                     discount = 0,
                                     price = foundProduct!!.price
@@ -124,14 +124,12 @@ fun ScannerScreen(
                         Row {
                             TextButton(onClick = {
                                 showProductFoundDialog = false
-                                // Cancel: go back to previous screen or home
                                 navController.popBackStack()
                             }) {
                                 Text("Cancel")
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             TextButton(onClick = {
-                                // Continue scanning
                                 showProductFoundDialog = false
                             }) {
                                 Text("Scan More")

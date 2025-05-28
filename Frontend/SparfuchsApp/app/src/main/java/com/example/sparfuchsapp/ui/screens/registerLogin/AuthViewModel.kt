@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sparfuchsapp.data.remote.RetrofitClient
 import com.example.sparfuchsapp.data.remote.dto.AuthRequestDTO
-import com.example.sparfuchsapp.data.remote.dto.ProductWithPriceDTO
 import com.example.sparfuchsapp.data.remote.dto.PurchaseDTO
 import com.example.sparfuchsapp.data.remote.dto.UserResponseDTO
 import com.example.sparfuchsapp.data.remote.dto.UserStatsDTO
@@ -24,6 +23,8 @@ class AuthViewModel : ViewModel() {
     val error: StateFlow<String?> = _error
     private val _userStats = MutableStateFlow<UserStatsDTO?>(null)
     val userStats: StateFlow<UserStatsDTO?> = _userStats
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading
 
     fun register(email: String, username: String, password: String) {
         viewModelScope.launch {
@@ -34,6 +35,8 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _user.value = response.body()
                     _error.value = null
+
+                    login(email, password, manageLoading = false) // Login after registration, passing flag to avoid loading in register
                 } else {
                     _error.value = "Registration failed: ${response.code()}"
                 }
@@ -43,7 +46,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, manageLoading: Boolean = true) {
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.userApi.login(
@@ -62,6 +65,8 @@ class AuthViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
+            } finally {
+                if (manageLoading) _loading.value = false
             }
         }
     }
@@ -101,6 +106,10 @@ class AuthViewModel : ViewModel() {
                 _error.value = "Network error: ${e.message}"
             }
         }
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 
     fun logout(context: Context) {

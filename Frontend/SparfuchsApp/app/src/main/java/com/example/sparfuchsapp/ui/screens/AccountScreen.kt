@@ -10,7 +10,10 @@ import androidx.compose.ui.Modifier
 import com.example.sparfuchsapp.ui.screens.registerLogin.AuthViewModel
 
 @Composable
-fun AccountScreen(padding: PaddingValues, viewModel: AuthViewModel) {
+fun AccountScreen(
+    padding: PaddingValues,
+    viewModel: AuthViewModel
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

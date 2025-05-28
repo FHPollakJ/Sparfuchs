@@ -1,7 +1,9 @@
 package com.example.sparfuchsapp.ui.screens.registerLogin
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,8 +12,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,17 +29,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.sparfuchsapp.utils.Routes
+import kotlinx.coroutines.launch
+import com.example.sparfuchsapp.R
 
 @Composable
 fun AuthScreen(
@@ -39,10 +53,17 @@ fun AuthScreen(
 ) {
     val user by viewModel.user.collectAsState()
     val error by viewModel.error.collectAsState()
+    val loading by viewModel.loading.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isRegistering by remember { mutableStateOf(false) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+
 
     LaunchedEffect(user) {
         if (user != null) {
@@ -53,38 +74,111 @@ fun AuthScreen(
         }
     }
 
-    Column(
-        Modifier
-            .padding(padding)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
-
-        OutlinedTextField(value = username, onValueChange = { username = it }, label = { Text("Username") })
-
-        OutlinedTextField(value = password, onValueChange = { password = it }, visualTransformation = PasswordVisualTransformation(), label = { Text("Password") })
-
-        Spacer(modifier = Modifier.height(8.dp))
-        Row (Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
-            Button(onClick = { viewModel.login(email, password) }) {
-                Text("Login")
-            }
-
-            Button(onClick = { viewModel.register(email, username, password) }) {
-                Text("Register")
-            }
-        }
-
-        user?.let {
-            Text("Logged in as: ${it.username}")
-            Log.d("AuthScreen", "Logged in as: ${it.username}")
-        }
-
+    LaunchedEffect(error) {
         error?.let {
-            Text("Error: $it", color = Color.Red)
-            Log.e("AuthScreen", "Error: $it")
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(it)
+                viewModel.clearError()
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        modifier = Modifier.padding(padding)
+    ) { padding ->
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.sparfuchslogo),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                )
+                Text(
+                    "Welcome to Sparfuchs!",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                )
+            }
+
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Login")
+                        Switch(
+                            checked = isRegistering,
+                            onCheckedChange = { isRegistering = it },
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                        Text("Register")
+                    }
+
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Email") })
+
+                    if (isRegistering) {
+                        OutlinedTextField(
+                            value = username,
+                            onValueChange = { username = it },
+                            label = { Text("Username") })
+                    }
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        label = { Text("Password") })
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (loading) {
+                        CircularProgressIndicator()
+                    } else {
+                        Row(
+                            Modifier.fillMaxWidth(0.8f),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Button(
+                                onClick = {
+                                    if (isRegistering) {
+                                        viewModel.register(email, username, password)
+                                    } else {
+                                        viewModel.login(email, password)
+                                    }
+                                },
+                                enabled = !loading
+                            ) {
+                                Text(if (isRegistering) "Register" else "Login")
+                            }
+                        }
+                    }
+                }
+            }
+
+            user?.let {
+                Log.d("AuthScreen", "Logged in as: ${it.username}")
+            }
+
+            error?.let {
+                Log.e("AuthScreen", "Error: $it")
+            }
         }
     }
 }

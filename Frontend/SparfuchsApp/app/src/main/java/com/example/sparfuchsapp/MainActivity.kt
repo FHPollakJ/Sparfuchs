@@ -3,6 +3,7 @@ package com.example.sparfuchsapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.sparfuchsapp.ui.theme.SparfuchsAppTheme
 import com.example.sparfuchsapp.ui.SparfuchsAppUI
 import com.example.sparfuchsapp.utils.Routes
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,7 +17,9 @@ class MainActivity : ComponentActivity() {
         val isLoggedIn = prefs.getBoolean("logged_in", false)
 
         setContent {
-            SparfuchsAppUI(startDestination = if (isLoggedIn) Routes.HOME else Routes.AUTH)
+            SparfuchsAppTheme {
+                SparfuchsAppUI(startDestination = if (isLoggedIn) Routes.HOME else Routes.AUTH)
+            }
         }
     }
 }

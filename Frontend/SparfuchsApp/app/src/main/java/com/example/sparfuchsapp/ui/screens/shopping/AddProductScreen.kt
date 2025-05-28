@@ -1,5 +1,6 @@
 package com.example.sparfuchsapp.ui.screens.shopping
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -38,65 +39,74 @@ fun AddProductScreen(
     var price by remember { mutableStateOf("") }
     var discount by remember { mutableStateOf("0") }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(padding)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
-        Text("Add Product", style = MaterialTheme.typography.headlineSmall)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Text("Add Product", style = MaterialTheme.typography.headlineSmall)
 
-        if (scanBarcode != null) {
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            if (scanBarcode != null) {
+                OutlinedTextField(
+                    value = barcode ?: "",
+                    onValueChange = { barcode = it },
+                    label = { Text("Barcode") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             OutlinedTextField(
-                value = barcode ?: "",
-                onValueChange = { barcode = it },
-                label = { Text("Barcode") },
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Product Name") },
                 modifier = Modifier.fillMaxWidth()
             )
-        }
 
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Product Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
+            OutlinedTextField(
+                value = quantity,
+                onValueChange = { quantity = it },
+                label = { Text("Quantity") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        OutlinedTextField(
-            value = quantity,
-            onValueChange = { quantity = it },
-            label = { Text("Quantity") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
+            OutlinedTextField(
+                value = price,
+                onValueChange = { price = it },
+                label = { Text("Price Each") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        OutlinedTextField(
-            value = price,
-            onValueChange = { price = it },
-            label = { Text("Price") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Row(Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)) {
-            Button(onClick = onCancel, modifier = Modifier.weight(1f)) {
-                Text("Cancel")
-            }
-            Spacer(Modifier.width(8.dp))
-            Button(
-                onClick = {
-                    val dto = PurchaseProductDTO(
-                        purchaseId = purchaseId,
-                        barcode = scanBarcode?.takeIf { it.isNotBlank() } ?: "NOBARCODE",
-                        productName = name,
-                        quantity = quantity.toIntOrNull() ?: 1,
-                        discount = discount.toIntOrNull() ?: 0,
-                        price = price.toDoubleOrNull() ?: 0.0
-                    )
-                    onSave(dto)
-                },
-                modifier = Modifier.weight(1f),
-                enabled = name.isNotBlank() && price.toDoubleOrNull() != null
-            ) {
-                Text("Save")
+            Row(Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)) {
+                Button(onClick = onCancel, modifier = Modifier.weight(1f)) {
+                    Text("Cancel")
+                }
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        val dto = PurchaseProductDTO(
+                            purchaseId = purchaseId,
+                            barcode = scanBarcode?.takeIf { it.isNotBlank() } ?: "NOBARCODE",
+                            productName = name,
+                            quantity = quantity.toIntOrNull() ?: 1,
+                            discount = discount.toIntOrNull() ?: 0,
+                            price = price.toDoubleOrNull() ?: 0.0
+                        )
+                        onSave(dto)
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = name.isNotBlank() && price.toDoubleOrNull() != null
+                ) {
+                    Text("Save")
+                }
             }
         }
     }
