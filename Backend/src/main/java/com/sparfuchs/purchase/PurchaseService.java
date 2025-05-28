@@ -12,6 +12,8 @@ import com.sparfuchs.purchaseProduct.PurchaseProductRepository;
 import com.sparfuchs.store.Store;
 import com.sparfuchs.store.StoreRepository;
 import com.sparfuchs.storeProduct.StoreProduct;
+import com.sparfuchs.storeProduct.StoreProductPriceHistory;
+import com.sparfuchs.storeProduct.StoreProductPriceHistoryRepository;
 import com.sparfuchs.storeProduct.StoreProductRepository;
 import com.sparfuchs.user.User;
 import com.sparfuchs.user.UserRepository;
@@ -21,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class PurchaseService {
@@ -32,6 +35,7 @@ public class PurchaseService {
     private final PurchaseProductRepository purchaseProductRepository;
     private final UserRepository userRepository;
     private final ProductService productService;
+    private final StoreProductPriceHistoryRepository storeProductPriceHistoryRepository;
 
     public PurchaseService(
             PurchaseRepository purchaseRepository,
@@ -40,8 +44,8 @@ public class PurchaseService {
             StoreProductRepository storeProductRepository,
             PurchaseProductRepository purchaseProductRepository,
             UserRepository userRepository,
-            ProductService productService
-    ) {
+            ProductService productService,
+            StoreProductPriceHistoryRepository storeProductPriceHistoryRepository) {
         this.purchaseRepository = purchaseRepository;
         this.productRepository = productRepository;
         this.storeRepository = storeRepository;
@@ -49,6 +53,7 @@ public class PurchaseService {
         this.purchaseProductRepository = purchaseProductRepository;
         this.userRepository = userRepository;
         this.productService = productService;
+        this.storeProductPriceHistoryRepository = storeProductPriceHistoryRepository;
     }
 
     @Transactional
@@ -92,7 +97,7 @@ public class PurchaseService {
                 purchase.getStore().getId(),
                 LocalDateTime.now(),
                 purchaseProductsToDTO(purchase.getProducts()),
-                false,
+                purchase.isCompleted(),
                 purchase.getTotalSpent(),
                 purchase.getTotalSaved());
     }
@@ -102,22 +107,42 @@ public class PurchaseService {
         Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
 
         for (PurchaseProduct p : purchase.getProducts()) {
-            if(p.getId() == request.purchaseId()){
-                    p.setQuantity(request.quantity());
-                    p.setDiscountPercent(request.discount());
-                    purchaseProductRepository.save(p);
-                    return new PurchaseDTO(purchase.getId(),
-                        purchase.getStore().getId(),
-                        LocalDateTime.now(),
-                        purchaseProductsToDTO(purchase.getProducts()),
-                        false,
-                        purchase.getTotalSpent(),
-                        purchase.getTotalSaved());
+            if(p.getId() == request.id()){
+                if (p.getProduct() != null) {
+                    //hier kommt nie was ohne barcode rein.
+                    updateStoreProductPriceIfNeeded(p.getProduct(), purchase.getStore().getId(), request.price());
+                }
+                p.setQuantity(request.quantity());
+                p.setDiscountPercent(request.discount());
+                purchaseProductRepository.save(p);
+                return new PurchaseDTO(purchase.getId(),
+                    purchase.getStore().getId(),
+                    LocalDateTime.now(),
+                    purchaseProductsToDTO(purchase.getProducts()),
+                    purchase.isCompleted(),
+                    purchase.getTotalSpent(),
+                    purchase.getTotalSaved());
             }
         }
             throw new NotFoundException("Product not found in purchase.");
     }
 
+    private void updateStoreProductPriceIfNeeded(Product product, long storeId, double newPrice) {
+        storeProductRepository.findByProductAndStoreId(product, storeId).ifPresent(storeProduct -> {
+            if (storeProduct.getPrice() != newPrice) {
+                StoreProductPriceHistory priceHistory = new StoreProductPriceHistory(
+                        storeProduct,
+                        storeProduct.getPrice(),
+                        storeProduct.getLastUpdated(),
+                        LocalDateTime.now()
+                );
+                storeProductPriceHistoryRepository.save(priceHistory);
+                storeProduct.setPrice(newPrice);
+                storeProduct.setLastUpdated(LocalDateTime.now());
+                storeProductRepository.save(storeProduct);
+            }
+        });
+    }
 
 
     @Transactional
@@ -151,7 +176,7 @@ public class PurchaseService {
                 purchase.getStore().getId(),
                 LocalDateTime.now(),
                 purchaseProductsToDTO(purchase.getProducts()),
-                false,
+                purchase.isCompleted(),
                 purchase.getTotalSpent(),
                 purchase.getTotalSaved()
         );
@@ -178,7 +203,7 @@ public class PurchaseService {
                 purchase.getStore().getId(),
                 LocalDateTime.now(),
                 purchaseProductsToDTO(purchase.getProducts()),
-                false,
+                purchase.isCompleted(),
                 purchase.getTotalSpent(),
                 purchase.getTotalSaved()
         );
@@ -239,5 +264,18 @@ public class PurchaseService {
             purchaseDTOS.add(dto);
         }
         return purchaseDTOS;
+    }
+
+    public PurchaseDTO getPurchase(PurchaseIdDTO request, long userId) {
+        Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
+        return new PurchaseDTO(
+                purchase.getId(),
+                purchase.getStore().getId(),
+                LocalDateTime.now(),
+                purchaseProductsToDTO(purchase.getProducts()),
+                purchase.isCompleted(),
+                purchase.getTotalSpent(),
+                purchase.getTotalSaved()
+        );
     }
 }

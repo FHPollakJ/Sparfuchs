@@ -29,12 +29,11 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/editProduct")
-    public ResponseEntity<?> editProduct(@RequestBody ProductWithPriceDTO request) {
-        productService.updateProduct(request);
-        return ResponseEntity.ok().build();
-    }
-
+//    @PatchMapping("/editProduct")
+//    public ResponseEntity<?> editProduct(@RequestBody ProductWithPriceDTO request) {
+//        productService.updateProduct(request);
+//        return ResponseEntity.ok().build();
+//    }
     @PostMapping("/priceHistory")
     public ResponseEntity<List<ProductPriceHistoryDTO>> getPriceHistory(@RequestBody ProductWithPriceDTO request) {
         List<ProductPriceHistoryDTO> history = productService.getPriceHistoryForProduct(request);

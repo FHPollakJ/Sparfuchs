@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGlobalException(Exception ex, WebRequest request) {
         logger.error("Unhandled Exception: {} - Request: {}", ex.getMessage(), request.getDescription(false));
-        return buildResponseEntity("Server died. "+ ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildResponseEntity("Server died."+ ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<Map<String, Object>> buildResponseEntity(String message, HttpStatus status) {

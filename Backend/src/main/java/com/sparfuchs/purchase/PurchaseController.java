@@ -21,6 +21,12 @@ public class PurchaseController {
         return ResponseEntity.ok(purchase);
     }
 
+    @GetMapping("/getPurchase")
+    public ResponseEntity<PurchaseDTO> getPurchase(@RequestBody PurchaseIdDTO request, HttpSession session) {
+        PurchaseDTO purchase = purchaseService.getPurchase(request, (long)session.getAttribute("userId"));
+        return ResponseEntity.ok(purchase);
+    }
+
     @PostMapping("/addProductToPurchase")
     public ResponseEntity<PurchaseDTO> addProductToPurchase(@RequestBody PurchaseProductDTO request, HttpSession session) {
         PurchaseDTO purchase = purchaseService.addProductToPurchase(request, (long)session.getAttribute("userId"));

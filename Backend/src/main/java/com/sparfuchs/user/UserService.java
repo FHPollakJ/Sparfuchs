@@ -5,6 +5,7 @@ import com.sparfuchs.DTO.PurchaseDTO;
 import com.sparfuchs.DTO.UserResponseDTO;
 import com.sparfuchs.DTO.UserStatsDTO;
 import com.sparfuchs.exception.BadRequestException;
+import com.sparfuchs.exception.ForbiddenException;
 import com.sparfuchs.exception.NotFoundException;
 import com.sparfuchs.purchase.PurchaseService;
 import jakarta.servlet.http.HttpSession;
@@ -38,10 +39,10 @@ public class UserService {
 
     public UserResponseDTO login(AuthRequestDTO request, HttpSession session) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials."));
+                .orElseThrow(() -> new ForbiddenException("Invalid credentials."));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password.");
+            throw new ForbiddenException("Invalid email or password.");
         }
 
         session.setAttribute("userId", user.getId());
