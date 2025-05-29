@@ -4,7 +4,7 @@ public record EditPurchaseProductDTO(long id,
                                      long purchaseId,
                                      int quantity,
                                      int discount,
-                                     int price
+                                     double price
 )
 {
 }
