@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -32,7 +34,16 @@ fun MainScreen(
     val user by viewModel.user.collectAsState()
     val purchases by viewModel.purchases.collectAsState()
     val stats by viewModel.userStats.collectAsState()
+    val loading by viewModel.purchaseLoading.collectAsState()
     val greeting = getGreeting()
+
+    LaunchedEffect(user) {
+        if (user != null) {
+            viewModel.loadPurchases()
+            viewModel.getUserStats()
+        }
+    }
+
 
     Box(
         modifier = Modifier
@@ -83,13 +94,15 @@ fun MainScreen(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Log.d("MainScreen", "Total purchases: ${purchases.size}")
-            val completedPurchases = purchases.filter { it.isCompleted }
-            Log.d("PurchaseHistory", "Completed purchases count: ${completedPurchases.size}")
-            if (completedPurchases.isEmpty()) {
-                Text("No completed purchases yet")
+            if (loading) {
+                CircularProgressIndicator()
             } else {
-                PurchaseHistory(completedPurchases)
+                val completedPurchases = purchases.filter { it.isCompleted }
+                if (completedPurchases.isEmpty()) {
+                    Text("No completed purchases yet")
+                } else {
+                    PurchaseHistory(completedPurchases)
+                }
             }
         }
     }

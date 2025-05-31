@@ -1,11 +1,10 @@
 package com.example.sparfuchsapp.ui.screens.shopping
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,38 +12,38 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.ShoppingCartCheckout
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.sparfuchsapp.data.dataClasses.StoreRepository
 import com.example.sparfuchsapp.data.remote.dto.EditPurchaseProductDTO
 import com.example.sparfuchsapp.ui.components.ProductCard
 import com.example.sparfuchsapp.ui.components.ShoppingSummaryCard
 import com.example.sparfuchsapp.ui.icons.CustomIcons
-import com.example.sparfuchsapp.ui.theme.moneySavedLight
 import com.example.sparfuchsapp.utils.Routes
 import com.example.sparfuchsapp.utils.toPurchaseProductDTO
 
@@ -57,7 +56,6 @@ fun ShoppingScreen(
 ) {
     val purchaseState by viewModel.purchase.collectAsState()
     val productList = purchaseState?.products ?: emptyList()
-    val store = StoreRepository.getStore(purchaseState!!.storeId)
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false)}
     BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
 
@@ -97,22 +95,136 @@ fun ShoppingScreen(
                         val purchaseId = purchaseState?.purchaseId ?: return@items
                         val product = productResponse.toPurchaseProductDTO(purchaseId)
 
-                        ProductCard(
-                            product = product,
-                            onAmountChange = { newQty ->
-                                viewModel.editProductInPurchase(
-                                    EditPurchaseProductDTO(
-                                        id = productResponse.id,
-                                        purchaseId = purchaseId,
-                                        quantity = newQty,
-                                        discount = productResponse.discount,
+                        // Context menu
+                        var showOptions by remember { mutableStateOf(false) }
+                        var showDiscountDialog by remember { mutableStateOf(false) }
+                        var showPriceDialog by remember { mutableStateOf(false) }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            showOptions = true
+                                        }
                                     )
-                                )
-                            },
-                            onRemove = {
-                                viewModel.removeProductFromPurchase(product)
-                            }
-                        )
+                                }
+                        ) {
+                            ProductCard(
+                                product = product,
+                                onAmountChange = { newQty ->
+                                    viewModel.editProductInPurchase(
+                                        EditPurchaseProductDTO(
+                                            id = productResponse.id,
+                                            purchaseId = purchaseId,
+                                            quantity = newQty,
+                                            discount = productResponse.discount,
+                                            price = productResponse.price
+                                        )
+                                    )
+                                },
+                                onRemove = {
+                                    viewModel.removeProductFromPurchase(product)
+                                }
+                            )
+                        }
+
+                        if (showOptions) {
+                            AlertDialog(
+                                onDismissRequest = { showOptions = false },
+                                title = { Text("Edit ${product.productName}") },
+                                text = { Text("What would you like to do?") },
+                                confirmButton = {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        TextButton(onClick = {
+                                            showOptions = false
+                                            showDiscountDialog = true
+                                        }) {
+                                            Text("Change Discount")
+                                        }
+                                        TextButton(onClick = {
+                                            showOptions = false
+                                            showPriceDialog = true
+                                        }) {
+                                            Text("Change Price")
+                                        }
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { showOptions = false }) {
+                                        Text("Cancel")
+                                    }
+                                }
+                            )
+                        }
+
+                        if (showDiscountDialog) {
+                            var discount by remember { mutableStateOf(product.discount.toString()) }
+
+                            AlertDialog(
+                                onDismissRequest = { showDiscountDialog = false },
+                                title = { Text("Set Discount") },
+                                text = {
+                                    OutlinedTextField(
+                                        value = discount,
+                                        onValueChange = { discount = it },
+                                        label = { Text("Discount %") },
+                                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                        singleLine = true
+                                    )
+                                },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        viewModel.editProductInPurchase(
+                                            EditPurchaseProductDTO(
+                                                id = product.productId!!,
+                                                purchaseId = purchaseId,
+                                                quantity = product.quantity,
+                                                discount = discount.toIntOrNull() ?: product.discount,
+                                                price = product.price
+                                            )
+                                        )
+                                        showDiscountDialog = false
+                                    }) { Text("Apply") }
+                                }
+                            )
+                        }
+
+                        if (showPriceDialog) {
+                            var price by remember { mutableStateOf(product.price.toString()) }
+
+                            AlertDialog(
+                                onDismissRequest = { showPriceDialog = false },
+                                title = { Text("Set Price") },
+                                text = {
+                                    OutlinedTextField(
+                                        value = price,
+                                        onValueChange = { price = it },
+                                        label = { Text("Price") },
+                                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                                        singleLine = true
+                                    )
+                                },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        viewModel.editProductInPurchase(
+                                            EditPurchaseProductDTO(
+                                                id = product.productId!!,
+                                                purchaseId = purchaseId,
+                                                quantity = product.quantity,
+                                                discount = product.discount,
+                                                price = price.toDoubleOrNull() ?: product.price
+                                            )
+                                        )
+                                        showPriceDialog = false
+                                    }) { Text("Apply") }
+                                }
+                            )
+                        }
+
                     }
                 }
             }
@@ -160,7 +272,7 @@ fun ShoppingScreen(
                         popUpTo(Routes.SHOPPING) { inclusive = true }
                     }
                 },
-                icon = { Icon(CustomIcons.FinishShopping, contentDescription = null) },
+                icon = { Icon(Icons.Default.ShoppingCartCheckout, contentDescription = null) },
                 text = { Text("Finish Shopping") }
             )
         }

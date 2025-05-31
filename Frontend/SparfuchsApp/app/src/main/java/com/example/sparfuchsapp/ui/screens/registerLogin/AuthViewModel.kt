@@ -24,8 +24,10 @@ class AuthViewModel : ViewModel() {
     val error: StateFlow<String?> = _error
     private val _userStats = MutableStateFlow<UserStatsDTO?>(null)
     val userStats: StateFlow<UserStatsDTO?> = _userStats
-    private val _loading = MutableStateFlow(false)
-    val loading: StateFlow<Boolean> = _loading
+    private val _loginLoading = MutableStateFlow(false)
+    val loginLoading: StateFlow<Boolean> = _loginLoading
+    private val _purchaseLoading = MutableStateFlow(false)
+    val purchaseLoading: StateFlow<Boolean> = _purchaseLoading
 
     fun register(email: String, username: String, password: String) {
         viewModelScope.launch {
@@ -49,6 +51,7 @@ class AuthViewModel : ViewModel() {
 
     fun login(email: String, password: String, manageLoading: Boolean = true) {
         viewModelScope.launch {
+            if (manageLoading) _loginLoading.value = true
             try {
                 val response = RetrofitClient.userApi.login(
                     AuthRequestDTO(email = email, password = password)
@@ -58,8 +61,8 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _user.value = response.body()
                     _error.value = null
-                    loadPurchases()
-                    getUserStats()
+                    //loadPurchases()
+                    //getUserStats()
                     Log.d("LoginCookies", RetrofitClient.CookieManager.cookieStore.toString())
                 } else {
                     _error.value = "Login failed: ${translateErrorMessage(response.errorBody())}"
@@ -67,23 +70,27 @@ class AuthViewModel : ViewModel() {
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
             } finally {
-                if (manageLoading) _loading.value = false
+                if (manageLoading) _loginLoading.value = false
             }
         }
     }
 
     fun loadPurchases() {
         viewModelScope.launch {
+            _purchaseLoading.value = true
             try {
                 val response = RetrofitClient.userApi.getPurchases()
                 if (response.isSuccessful) {
                     Log.d("PurchaseResponse", "Fetching purchases successful")
                     _purchases.value = response.body() ?: emptyList()
+                    _error.value = null
                 } else {
                     _error.value = "Failed to load purchases: ${translateErrorMessage(response.errorBody())}"
                 }
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
+            } finally {
+                _purchaseLoading.value = false
             }
         }
     }

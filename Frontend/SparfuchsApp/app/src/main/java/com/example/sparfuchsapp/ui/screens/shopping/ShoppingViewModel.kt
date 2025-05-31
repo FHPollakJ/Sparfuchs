@@ -150,6 +150,7 @@ class ShoppingViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 RetrofitClient.purchaseApi.finishPurchase(PurchaseIdDTO(purchaseId))
+                RetrofitClient.userApi.getPurchases()
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
             }

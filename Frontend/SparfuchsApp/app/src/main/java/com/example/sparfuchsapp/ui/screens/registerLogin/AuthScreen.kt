@@ -53,7 +53,7 @@ fun AuthScreen(
 ) {
     val user by viewModel.user.collectAsState()
     val error by viewModel.error.collectAsState()
-    val loading by viewModel.loading.collectAsState()
+    val loading by viewModel.loginLoading.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -132,19 +132,25 @@ fun AuthScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Email") })
+                        label = { Text("Email") },
+                        singleLine = true,
+                    )
 
                     if (isRegistering) {
                         OutlinedTextField(
                             value = username,
                             onValueChange = { username = it },
-                            label = { Text("Username") })
+                            label = { Text("Username") },
+                            singleLine = true,
+                        )
                     }
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
                         visualTransformation = PasswordVisualTransformation(),
-                        label = { Text("Password") })
+                        label = { Text("Password") },
+                        singleLine = true,
+                    )
 
                     Spacer(modifier = Modifier.height(8.dp))
 

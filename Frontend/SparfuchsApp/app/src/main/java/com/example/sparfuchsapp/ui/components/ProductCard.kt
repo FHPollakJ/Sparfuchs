@@ -45,6 +45,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
 import com.example.sparfuchsapp.data.remote.dto.calculateTotal
+import com.example.sparfuchsapp.ui.icons.CustomIcons
+import com.example.sparfuchsapp.ui.theme.moneySavedLight
 
 
 @Composable
@@ -65,11 +67,23 @@ fun ProductCard(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text(
-                    text = product.productName,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = product.productName,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    if (product.discount > 0) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            imageVector = CustomIcons.Rebate,
+                            contentDescription = "Discount Applied",
+                            tint = moneySavedLight,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                }
                 Text(
                     text = "€ %.2f".format(product.price),
                     style = MaterialTheme.typography.titleMedium
@@ -115,7 +129,7 @@ fun ProductCard(
                 DiscountedPrice(
                     originalPrice = originalTotal,
                     discountedPrice = discountedTotal,
-                    hasDiscount = discountedTotal < originalTotal
+                    hasDiscount = product.discount > 0
                 )
             }
         }
@@ -162,7 +176,7 @@ fun QuantityInput(
                         text = newValue
                         onQuantityChange(newQuantity)
                     } else if (newValue.isEmpty()) {
-                        text = "" //Dont remove if field is empty
+                        text = ""
                     } else {
                         onRemove()
                     }
@@ -189,7 +203,8 @@ fun DiscountedPrice(
         if (hasDiscount) {
             Text(
                 text = "€ %.2f".format(discountedPrice),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                color = moneySavedLight
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
