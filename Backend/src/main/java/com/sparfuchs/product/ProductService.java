@@ -75,7 +75,7 @@ public class ProductService {
         StoreProduct storeProduct = new StoreProduct(product, store, price, lastUpdated);
         storeProductRepository.save(storeProduct);
     }
-    
+
 //    @Transactional
 //    public void updateProduct(ProductWithPriceDTO request) {
 //        Product product = productRepository.findByBarcode(request.barcode())

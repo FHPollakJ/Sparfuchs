@@ -106,25 +106,48 @@ public class PurchaseService {
     public PurchaseDTO editProductInPurchase(EditPurchaseProductDTO request, long userId) {
         Purchase purchase = getValidatedEditablePurchase(request.purchaseId(), userId);
 
+        PurchaseProduct targetPurchaseProduct = null;
+        Product targetProduct = null;
+
         for (PurchaseProduct p : purchase.getProducts()) {
-            if(p.getId() == request.id()){
-                if (p.getProduct() != null) {
-                    //hier kommt nie was ohne barcode rein.
-                    updateStoreProductPriceIfNeeded(p.getProduct(), purchase.getStore().getId(), request.price());
-                }
-                p.setQuantity(request.quantity());
-                p.setDiscountPercent(request.discount());
-                purchaseProductRepository.save(p);
-                return new PurchaseDTO(purchase.getId(),
-                    purchase.getStore().getId(),
-                    LocalDateTime.now(),
-                    purchaseProductsToDTO(purchase.getProducts()),
-                    purchase.isCompleted(),
-                    purchase.getTotalSpent(),
-                    purchase.getTotalSaved());
+            if (p.getId() == request.id()) {
+                targetPurchaseProduct = p;
+                targetProduct = p.getProduct();
+                break;
             }
         }
+
+        if (targetPurchaseProduct == null) {
             throw new NotFoundException("Product not found in purchase.");
+        }
+
+        if (targetProduct != null) {
+            updateStoreProductPriceIfNeeded(targetProduct, purchase.getStore().getId(), request.price());
+        }
+
+        targetPurchaseProduct.setPrice(request.price());
+        targetPurchaseProduct.setQuantity(request.quantity());
+        targetPurchaseProduct.setDiscountPercent(request.discount());
+
+        //  update  price for all other prducts  that have the same Product
+        if (targetProduct != null) {
+            for (PurchaseProduct p : purchase.getProducts()) {
+                if (p.getId() != request.id() &&
+                        p.getProduct() != null &&
+                        p.getProduct().getBarcode().equals(targetProduct.getBarcode())) {
+
+                    p.setPrice(request.price());
+                }
+            }
+        }
+
+        return new PurchaseDTO(purchase.getId(),
+                purchase.getStore().getId(),
+                LocalDateTime.now(),
+                purchaseProductsToDTO(purchase.getProducts()),
+                purchase.isCompleted(),
+                purchase.getTotalSpent(),
+                purchase.getTotalSaved());
     }
 
     private void updateStoreProductPriceIfNeeded(Product product, long storeId, double newPrice) {
