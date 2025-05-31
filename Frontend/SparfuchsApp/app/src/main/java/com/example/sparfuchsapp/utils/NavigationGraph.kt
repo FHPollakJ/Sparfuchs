@@ -1,6 +1,5 @@
 package com.example.sparfuchsapp.utils
 
-import android.R.attr.type
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
@@ -12,20 +11,18 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.sparfuchsapp.data.dataClasses.StoreRepository
 import com.example.sparfuchsapp.data.remote.dto.ProductWithPriceDTO
-import com.example.sparfuchsapp.data.remote.dto.PurchaseProductDTO
 import com.example.sparfuchsapp.ui.screens.AccountScreen
 import com.example.sparfuchsapp.ui.screens.MainScreen
 import com.example.sparfuchsapp.ui.screens.ProductSearchScreen
-import com.example.sparfuchsapp.ui.screens.shopping.ScannerScreen
 import com.example.sparfuchsapp.ui.screens.SettingsScreen
-import com.example.sparfuchsapp.ui.screens.shopping.AddProductScreen
-import com.example.sparfuchsapp.ui.screens.shopping.PreShoppingScreen
-import com.example.sparfuchsapp.ui.screens.shopping.ShoppingScreen
-import com.example.sparfuchsapp.ui.screens.shopping.ShoppingViewModel
 import com.example.sparfuchsapp.ui.screens.registerLogin.AuthScreen
 import com.example.sparfuchsapp.ui.screens.registerLogin.AuthViewModel
+import com.example.sparfuchsapp.ui.screens.shopping.AddProductScreen
+import com.example.sparfuchsapp.ui.screens.shopping.PreShoppingScreen
+import com.example.sparfuchsapp.ui.screens.shopping.ScannerScreen
+import com.example.sparfuchsapp.ui.screens.shopping.ShoppingScreen
+import com.example.sparfuchsapp.ui.screens.shopping.ShoppingViewModel
 import java.time.LocalDateTime
 
 //Navigation graph, tells what routes show what screen
@@ -82,7 +79,9 @@ fun NavigationGraph(
             }
 
         }
-        composable(Routes.PRODUCT_SEARCH) { ProductSearchScreen() }
+        composable(Routes.PRODUCT_HISTORY) { ProductSearchScreen(
+            padding = innerPadding
+        ) }
         composable(
             route = "${Routes.ADD_PRODUCT}/{purchaseId}/{storeId}?scanBarcode={scanBarcode}",
             arguments = listOf(

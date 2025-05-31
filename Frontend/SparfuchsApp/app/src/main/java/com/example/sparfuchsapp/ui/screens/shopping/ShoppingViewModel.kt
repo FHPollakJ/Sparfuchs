@@ -51,7 +51,6 @@ class ShoppingViewModel : ViewModel() {
         }
     }
 
-    //Local
     fun addProductToPurchase(product: PurchaseProductDTO) {
         viewModelScope.launch {
             _purchase.value?.let { currentPurchase ->
@@ -157,6 +156,22 @@ class ShoppingViewModel : ViewModel() {
         }
     }
 
+    fun getPurchase(purchaseId: Long) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.purchaseApi.getPurchase(PurchaseIdDTO(purchaseId))
+                if (response.isSuccessful) {
+                    _purchase.value = response.body()
+                    _error.value = null
+                } else {
+                    _error.value = "Get purchase failed: ${translateErrorMessage(response.errorBody())}"
+                }
+            } catch (e: Exception) {
+                _error.value = "Network error: ${e.message}"
+            }
+        }
+    }
+
     fun editProductInPurchase(product: EditPurchaseProductDTO) {
         viewModelScope.launch {
             try {
@@ -166,6 +181,7 @@ class ShoppingViewModel : ViewModel() {
                         products = current.products.map {
                             if (it.id == product.id) {
                                 it.copy(
+                                    price = product.price,
                                     quantity = product.quantity,
                                     discount = product.discount
                                 )
@@ -173,6 +189,7 @@ class ShoppingViewModel : ViewModel() {
                         }
                     )
                 }
+                RetrofitClient.purchaseApi.getPurchase(PurchaseIdDTO(product.purchaseId))
             } catch (e: Exception) {
                 _error.value = "Network error: ${e.message}"
             }

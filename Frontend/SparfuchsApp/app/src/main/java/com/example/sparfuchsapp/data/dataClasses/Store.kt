@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 data class Store(
     val id: Long,
     val name: String,
-    val logoResId: Int? = null  // optional
+    val logoResId: Int? = null
 )
 
 object StoreRepository {

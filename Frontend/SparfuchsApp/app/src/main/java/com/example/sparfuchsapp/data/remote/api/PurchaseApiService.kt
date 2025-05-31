@@ -8,6 +8,7 @@ import com.example.sparfuchsapp.data.remote.dto.StartPurchaseDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 
@@ -24,6 +25,9 @@ interface PurchaseApiService {
 
     @PATCH("purchase/editProductInPurchase")
     suspend fun editProductInPurchase(@Body request: EditPurchaseProductDTO)
+
+    @GET("purchase/getPurchase")
+    suspend fun getPurchase(@Body request: PurchaseIdDTO): Response<PurchaseDTO>
 
     @DELETE("purchase/deletePurchase")
     suspend fun deletePurchase(@Body request: PurchaseIdDTO)

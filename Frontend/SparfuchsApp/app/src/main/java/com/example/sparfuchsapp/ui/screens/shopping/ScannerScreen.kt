@@ -2,11 +2,13 @@ package com.example.sparfuchsapp.ui.screens.shopping
 
 import android.Manifest
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
@@ -43,6 +45,7 @@ fun ScannerScreen(
     var isCheckingBarcode by remember { mutableStateOf(false) }
     var showProductFoundDialog by remember { mutableStateOf(false) }
     var foundProduct by remember { mutableStateOf<ProductWithPriceDTO?>(null) }
+    val hasScanned = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (!permissionState.status.isGranted) {
@@ -73,12 +76,15 @@ fun ScannerScreen(
                             isCheckingBarcode = false
                         }
                     }
-                }
+                },
+                hasScanned = hasScanned
             )
 
             if (showNewBarcodeDialog) {
                 AlertDialog(
-                    onDismissRequest = { showNewBarcodeDialog = false },
+                    onDismissRequest = {
+                        showProductFoundDialog = false
+                        hasScanned.value = false },
                     title = { Text("New Barcode Detected") },
                     text = { Text("Barcode $scannedBarcode not found in database. Would you like to add it?") },
                     confirmButton = {
@@ -99,7 +105,10 @@ fun ScannerScreen(
 
             if (showProductFoundDialog && foundProduct != null) {
                 AlertDialog(
-                    onDismissRequest = { showProductFoundDialog = false },
+                    onDismissRequest = {
+                        showProductFoundDialog = false
+                        hasScanned.value = false
+                                       },
                     title = { Text("Product Found") },
                     text = { Text("Add '${foundProduct!!.name}' to your purchase?") },
                     confirmButton = {
@@ -121,8 +130,10 @@ fun ScannerScreen(
                         }
                     },
                     dismissButton = {
-                        Row {
-                            TextButton(onClick = {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) { TextButton(onClick = {
                                 showProductFoundDialog = false
                                 navController.popBackStack()
                             }) {
@@ -131,6 +142,17 @@ fun ScannerScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             TextButton(onClick = {
                                 showProductFoundDialog = false
+                                hasScanned.value = false
+                                viewModel.addProductToPurchase(
+                                    PurchaseProductDTO(
+                                        purchaseId = viewModel.purchase.value?.purchaseId ?: 0L,
+                                        barcode = foundProduct!!.barcode,
+                                        productName = foundProduct!!.name,
+                                        quantity = 1,
+                                        discount = 0,
+                                        price = foundProduct!!.price
+                                    )
+                                )
                             }) {
                                 Text("Scan More")
                             }

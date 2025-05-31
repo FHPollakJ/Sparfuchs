@@ -1,6 +1,5 @@
 package com.example.sparfuchsapp.data.remote.dto
 
-import com.example.sparfuchsapp.utils.DiscountType
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)

@@ -2,6 +2,7 @@ package com.example.sparfuchsapp.ui.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoGraph
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -24,10 +25,10 @@ import com.example.sparfuchsapp.utils.Routes
 fun BottomNavBar(navController: NavController) {
     val items = listOf(  //Creates list of all the tabs in the bottom bar
         BottomNavItem.Home,
-        BottomNavItem.ProductSearch,
         BottomNavItem.Shopping,
-        BottomNavItem.Scanner,
-        BottomNavItem.Settings
+        BottomNavItem.ProductSearch
+        //BottomNavItem.Scanner,
+        //BottomNavItem.Settings
     )
 
     NavigationBar{
@@ -57,8 +58,8 @@ fun BottomNavBar(navController: NavController) {
 //Sets the items, routes and labels for the bottom bar
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Home : BottomNavItem(Routes.HOME, Icons.Default.Home, "Home")
-    object ProductSearch : BottomNavItem(Routes.PRODUCT_SEARCH, Icons.Default.Search, "Search")
-    object Shopping : BottomNavItem(Routes.SHOPPING, Icons.Default.ShoppingCart, "Start\nShopping")
+    object ProductSearch : BottomNavItem(Routes.PRODUCT_HISTORY, Icons.Default.AutoGraph, "Price History")
+    object Shopping : BottomNavItem(Routes.SHOPPING, Icons.Default.ShoppingCart, "My Shopping Cart")
     object Scanner : BottomNavItem(Routes.SCANNER, CustomIcons.BarcodeScanner, "Scanner\n(DEBUG)")
     object Settings : BottomNavItem(Routes.SETTINGS, Icons.Default.Settings, "Settings")
 }

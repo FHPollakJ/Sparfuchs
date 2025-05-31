@@ -74,12 +74,15 @@ dependencies {
     // Network - Retrofit + OkHttp + Moshi
     implementation(libs.retrofit)
     implementation(libs.moshi)
-    implementation(libs.moshi.kotlin.codegen)
+    ksp(libs.moshi.kotlin.codegen)
     implementation(libs.converter.moshi)
     implementation(libs.squareup.moshi.adapters)
     implementation(libs.retrofit2.converter.moshi)
     implementation(libs.okhttp)
     implementation(libs.squareup.moshi.kotlin)
+
+    //Graphs
+    implementation(libs.charty)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)

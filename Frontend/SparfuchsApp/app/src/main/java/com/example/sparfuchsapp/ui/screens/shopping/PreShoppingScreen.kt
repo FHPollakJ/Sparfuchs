@@ -21,8 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.sparfuchsapp.data.dataClasses.Store
-import com.example.sparfuchsapp.ui.screens.shopping.ShoppingViewModel
+import com.example.sparfuchsapp.data.dataClasses.StoreRepository
+
 
 @Composable
 fun PreShoppingScreen(
@@ -30,7 +30,7 @@ fun PreShoppingScreen(
     viewModel: ShoppingViewModel,
     onStartPurchase: () -> Unit
 ) {
-    val stores = listOf<Store>(Store(1, "Spar"), Store(2, "Billa"))
+    val stores = StoreRepository.storeMap.values.toList()
     var selectedStore by remember { mutableStateOf(stores.first()) }
 
     Column(

@@ -2,9 +2,11 @@ package com.example.sparfuchsapp.ui.screens.shopping
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -123,6 +125,7 @@ fun ShoppingScreen(
                                             price = productResponse.price
                                         )
                                     )
+                                    viewModel.getPurchase(purchaseId)
                                 },
                                 onRemove = {
                                     viewModel.removeProductFromPurchase(product)
@@ -136,14 +139,20 @@ fun ShoppingScreen(
                                 title = { Text("Edit ${product.productName}") },
                                 text = { Text("What would you like to do?") },
                                 confirmButton = {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        TextButton(onClick = {
-                                            showOptions = false
-                                            showDiscountDialog = true
-                                        }) {
-                                            Text("Change Discount")
+                                    TextButton(onClick = {
+                                        showOptions = false
+                                        showDiscountDialog = true
+                                    }) {
+                                        Text("Change Discount")
+                                    }
+                                },
+                                dismissButton = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ){
+                                        TextButton(onClick = { showOptions = false }) {
+                                            Text("Cancel")
                                         }
                                         TextButton(onClick = {
                                             showOptions = false
@@ -151,11 +160,6 @@ fun ShoppingScreen(
                                         }) {
                                             Text("Change Price")
                                         }
-                                    }
-                                },
-                                dismissButton = {
-                                    TextButton(onClick = { showOptions = false }) {
-                                        Text("Cancel")
                                     }
                                 }
                             )
@@ -224,7 +228,6 @@ fun ShoppingScreen(
                                 }
                             )
                         }
-
                     }
                 }
             }
