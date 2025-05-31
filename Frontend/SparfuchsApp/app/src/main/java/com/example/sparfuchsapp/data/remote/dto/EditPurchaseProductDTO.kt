@@ -7,5 +7,6 @@ data class EditPurchaseProductDTO (
     val id: Long,
     val purchaseId: Long,
     val quantity: Int,
-    val discount: Int
+    val discount: Int,
+    val price: Double
 )
