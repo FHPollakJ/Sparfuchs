@@ -23,6 +23,7 @@ import com.example.sparfuchsapp.ui.screens.shopping.PreShoppingScreen
 import com.example.sparfuchsapp.ui.screens.shopping.ScannerScreen
 import com.example.sparfuchsapp.ui.screens.shopping.ShoppingScreen
 import com.example.sparfuchsapp.ui.screens.shopping.ShoppingViewModel
+import okhttp3.internal.wait
 import java.time.LocalDateTime
 
 //Navigation graph, tells what routes show what screen
@@ -102,29 +103,25 @@ fun NavigationGraph(
                 purchaseId = purchaseId,
                 scanBarcode = barcode?.takeIf { it.isNotBlank() },
                 onSave = { product ->
-                    if (!product.barcode.isNullOrBlank()) {
-                        shoppingViewModel.createProduct(
-                            product.barcode,
-                            ProductWithPriceDTO(
-                                name = product.productName,
-                                barcode = product.barcode,
-                                price = product.price,
-                                storeId = storeId, // <-- You must pass the storeId here
-                                lastUpdated = LocalDateTime.now()
-                            )
-                        )
-                    }
-                    shoppingViewModel.addProductToPurchase(product)
-                    navController.popBackStack()
+                    shoppingViewModel.createProductAndAddToPurchase(product, storeId)
+                    navController.navigate(Routes.SHOPPING)
                 },
                 onCancel = { navController.popBackStack() },
                 padding = innerPadding
             )
         }
         composable(Routes.ACCOUNT) { AccountScreen(
-                padding = innerPadding,
-                viewModel = authViewModel
-            )
+            padding = innerPadding,
+            viewModel = authViewModel,
+            onLogout = {
+                navController.navigate(Routes.AUTH) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            }
+        )
         }
         composable(Routes.AUTH){
             AuthScreen(

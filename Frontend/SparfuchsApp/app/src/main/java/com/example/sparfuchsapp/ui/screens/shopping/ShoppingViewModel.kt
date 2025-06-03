@@ -196,6 +196,45 @@ class ShoppingViewModel : ViewModel() {
         }
     }
 
+    fun createProductAndAddToPurchase(product: PurchaseProductDTO, storeId: Long) {
+        viewModelScope.launch {
+            try {
+                if (!product.barcode.isNullOrBlank() && product.barcode != "NOBARCODE") {
+                    RetrofitClient.productApi.createProduct(
+                        ProductWithPriceDTO(
+                            name = product.productName,
+                            barcode = product.barcode,
+                            price = product.price,
+                            storeId = storeId,
+                            lastUpdated = LocalDateTime.now()
+                        )
+                    )
+                }
+
+                _purchase.value?.let { currentPurchase ->
+                    val response = RetrofitClient.purchaseApi.addProductToPurchase(
+                        PurchaseProductDTO(
+                            purchaseId = currentPurchase.purchaseId,
+                            barcode = product.barcode,
+                            productName = product.productName,
+                            quantity = product.quantity,
+                            discount = product.discount,
+                            price = product.price
+                        )
+                    )
+                    if (response.isSuccessful) {
+                        _purchase.value = response.body()
+                        _error.value = null
+                    } else {
+                        _error.value = "Add product to purchase failed: ${translateErrorMessage(response.errorBody())}"
+                    }
+                }
+            } catch (e: Exception) {
+                _error.value = "Network error: ${e.message}"
+            }
+        }
+    }
+
     fun clearShoppingList(){
         _purchase.value = null
     }

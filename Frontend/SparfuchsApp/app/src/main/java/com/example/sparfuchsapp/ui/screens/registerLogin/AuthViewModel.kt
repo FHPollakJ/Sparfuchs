@@ -1,6 +1,5 @@
 package com.example.sparfuchsapp.ui.screens.registerLogin
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -120,13 +119,18 @@ class AuthViewModel : ViewModel() {
         _error.value = null
     }
 
-    fun logout(context: Context) {
-        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-        prefs.edit().clear().apply()
-    }
-
-    fun saveLoginState(context: Context, isLoggedIn: Boolean) {
-        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-        prefs.edit().putBoolean("logged_in", isLoggedIn).apply()
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                RetrofitClient.userApi.logout()
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = "Network error: ${e.message}"
+            } finally {
+                _user.value = null
+                _purchases.value = emptyList()
+                _userStats.value = null
+            }
+        }
     }
 }

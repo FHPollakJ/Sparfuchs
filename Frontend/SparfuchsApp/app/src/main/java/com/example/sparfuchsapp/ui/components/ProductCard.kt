@@ -82,6 +82,11 @@ fun ProductCard(
                             tint = moneySavedLight,
                             modifier = Modifier.size(30.dp)
                         )
+                        Text(
+                            text = "-${product.discount}%",
+                            fontWeight = FontWeight.Bold,
+                            color = moneySavedLight
+                        )
                     }
                 }
                 Text(

@@ -84,7 +84,8 @@ fun ScannerScreen(
                 AlertDialog(
                     onDismissRequest = {
                         showProductFoundDialog = false
-                        hasScanned.value = false },
+                        hasScanned.value = false
+                                       },
                     title = { Text("New Barcode Detected") },
                     text = { Text("Barcode $scannedBarcode not found in database. Would you like to add it?") },
                     confirmButton = {
@@ -96,7 +97,10 @@ fun ScannerScreen(
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showNewBarcodeDialog = false }) {
+                        TextButton(onClick = {
+                            showNewBarcodeDialog = false
+                            navController.popBackStack()
+                        }) {
                             Text("Cancel")
                         }
                     }

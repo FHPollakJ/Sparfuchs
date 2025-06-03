@@ -58,7 +58,8 @@ fun AddProductScreen(
                     value = barcode ?: "",
                     onValueChange = { barcode = it },
                     label = { Text("Barcode") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
             }
 
@@ -66,7 +67,8 @@ fun AddProductScreen(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("Product Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
 
             OutlinedTextField(
@@ -74,15 +76,22 @@ fun AddProductScreen(
                 onValueChange = { quantity = it },
                 label = { Text("Quantity") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
 
             OutlinedTextField(
                 value = price,
-                onValueChange = { price = it },
+                onValueChange = { input ->
+                    val regex = Regex("""^\d*\.?\d{0,2}$""")
+                    if (input.isEmpty() || input.matches(regex)) {
+                        price = input
+                    }
+                },
                 label = { Text("Price Each") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
 
             Row(Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)) {
